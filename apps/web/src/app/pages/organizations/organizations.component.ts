@@ -147,15 +147,27 @@ interface OrgTreeNode {
 
     <!-- Delete Confirmation Modal -->
     @if (deleteTarget()) {
-      <app-confirm-dialog
-        title="Delete Organization"
-        [message]="'Are you sure you want to delete <strong>' + deleteTarget()!.name + '</strong>? This will fail if the org still has users, tasks, or categories.'"
-        confirmLabel="Delete"
-        [destructive]="true"
-        [loading]="saving()"
-        (confirmed)="doDelete()"
-        (cancelled)="cancelDelete()"
-      />
+      <div class="modal-backdrop" (click)="cancelDelete()">
+        <div class="modal" (click)="$event.stopPropagation()" style="max-width: 420px">
+          <h3 style="margin: 0 0 8px; font-size: 18px; font-weight: 700">Delete Organization</h3>
+          <p class="text-secondary text-sm" style="margin: 0 0 16px">
+            Are you sure you want to delete <strong>{{ deleteTarget()!.name }}</strong>? This will fail if the org still has users, tasks, or categories.
+          </p>
+          <div style="margin-bottom: 16px">
+            <label class="form-label">Type <strong>{{ deleteTarget()!.name }}</strong> to confirm</label>
+            <input class="form-input" [(ngModel)]="deleteConfirmName" name="deleteConfirm"
+                   placeholder="Organization name" autocomplete="off" />
+          </div>
+          <div class="flex gap-2 justify-between">
+            <button class="btn btn-secondary" (click)="cancelDelete()">Cancel</button>
+            <button class="btn btn-danger" (click)="doDelete()"
+                    [disabled]="saving() || deleteConfirmName !== deleteTarget()!.name">
+              @if (saving()) { <span class="spinner"></span> }
+              Delete
+            </button>
+          </div>
+        </div>
+      </div>
     }
   `,
   styles: [`
@@ -365,6 +377,7 @@ export class OrganizationsComponent implements OnInit {
   showModal = signal(false);
   editingOrg = signal<Organization | null>(null);
   deleteTarget = signal<Organization | null>(null);
+  deleteConfirmName = '';
   modalName = '';
   createAsParent = false;
   nameError = '';
@@ -472,6 +485,7 @@ export class OrganizationsComponent implements OnInit {
 
   cancelDelete() {
     this.deleteTarget.set(null);
+    this.deleteConfirmName = '';
   }
 
   doDelete() {
