@@ -4,7 +4,8 @@
   "license": "MIT",
   "scripts": {
     "seed": "npx nx run api:seed",
-    "start": "npx nx run-many -t serve",
+    "seed:fresh": "npx nx run api:seed -- --force",
+    "start": "npx nx run api:seed && npx nx run-many -t serve",
     "start:api": "npx nx serve api",
     "start:web": "npx nx serve web",
     "test": "npx nx run-many -t test",

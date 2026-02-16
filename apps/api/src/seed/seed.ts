@@ -5,15 +5,21 @@ import { User } from '../users/user.entity';
 import { Task } from '../tasks/task.entity';
 import { Category } from '../categories/category.entity';
 import { AuditLog } from '../audit-log/audit-log.entity';
-import { Role, TaskStatus, TaskPriority } from '@stms/data';
+import { Role, TaskStatus, TaskPriority, AuditAction, AuditResource } from '@stms/data';
 import * as fs from 'fs';
 import * as path from 'path';
 
-async function seed() {
+async function seed(force = false) {
   const dbPath = process.env.DATABASE_PATH || './data/stms.sqlite';
   const dbDir = path.dirname(dbPath);
   if (!fs.existsSync(dbDir)) {
     fs.mkdirSync(dbDir, { recursive: true });
+  }
+
+  // Skip seeding if database already exists (unless --force is passed)
+  if (!force && fs.existsSync(dbPath)) {
+    console.log('✅ Database already exists. Skipping seed. Use "npm run seed:fresh" to re-seed.');
+    return;
   }
 
   const dataSource = new DataSource({
@@ -26,7 +32,7 @@ async function seed() {
   await dataSource.initialize();
   console.log('🌱 Database connected. Seeding...');
 
-  // Clear existing data (idempotent)
+  // Clear existing data
   await dataSource.getRepository(AuditLog).clear();
   await dataSource.getRepository(Task).clear();
   await dataSource.getRepository(Category).clear();
@@ -105,6 +111,12 @@ async function seed() {
     const d = new Date(today);
     d.setDate(d.getDate() - days);
     return d.toISOString().split('T')[0];
+  };
+  const pastTimestamp = (days: number, hours = 0) => {
+    const d = new Date(today);
+    d.setDate(d.getDate() - days);
+    d.setHours(d.getHours() - hours);
+    return d;
   };
 
   const tasks = [
@@ -198,13 +210,205 @@ async function seed() {
     },
   ];
 
+  const savedTasks = [];
   for (const taskData of tasks) {
-    await taskRepo.save(taskData);
+    savedTasks.push(await taskRepo.save(taskData));
   }
   console.log(`  ✅ Tasks created: ${tasks.length} sample tasks across all orgs`);
 
+  // --- Audit Logs ---
+  const auditRepo = dataSource.getRepository(AuditLog);
+  const auditLogs = [
+    // Sarah created categories (5 days ago)
+    {
+      action: AuditAction.CREATE,
+      resource: AuditResource.CATEGORY,
+      resourceId: compliance.id,
+      userId: sarah.id,
+      organizationId: hq.id,
+      details: JSON.stringify({ name: 'Compliance' }),
+      timestamp: pastTimestamp(5, 8),
+    },
+    {
+      action: AuditAction.CREATE,
+      resource: AuditResource.CATEGORY,
+      resourceId: operations.id,
+      userId: sarah.id,
+      organizationId: hq.id,
+      details: JSON.stringify({ name: 'Operations' }),
+      timestamp: pastTimestamp(5, 7),
+    },
+    {
+      action: AuditAction.CREATE,
+      resource: AuditResource.CATEGORY,
+      resourceId: hr.id,
+      userId: sarah.id,
+      organizationId: hq.id,
+      details: JSON.stringify({ name: 'Human Resources' }),
+      timestamp: pastTimestamp(5, 6),
+    },
+    {
+      action: AuditAction.CREATE,
+      resource: AuditResource.CATEGORY,
+      resourceId: maintenance.id,
+      userId: sarah.id,
+      organizationId: hq.id,
+      details: JSON.stringify({ name: 'Maintenance' }),
+      timestamp: pastTimestamp(5, 5),
+    },
+    // Sarah created users (4 days ago)
+    {
+      action: AuditAction.CREATE,
+      resource: AuditResource.USER,
+      resourceId: marcus.id,
+      userId: sarah.id,
+      organizationId: hq.id,
+      details: JSON.stringify({ email: 'marcus@east.com', role: 'admin', organization: 'East Office' }),
+      timestamp: pastTimestamp(4, 6),
+    },
+    {
+      action: AuditAction.CREATE,
+      resource: AuditResource.USER,
+      resourceId: jordan.id,
+      userId: sarah.id,
+      organizationId: hq.id,
+      details: JSON.stringify({ email: 'jordan@west.com', role: 'admin', organization: 'West Office' }),
+      timestamp: pastTimestamp(4, 5),
+    },
+    {
+      action: AuditAction.CREATE,
+      resource: AuditResource.USER,
+      resourceId: alex.id,
+      userId: sarah.id,
+      organizationId: hq.id,
+      details: JSON.stringify({ email: 'alex@east.com', role: 'viewer', organization: 'East Office' }),
+      timestamp: pastTimestamp(4, 4),
+    },
+    {
+      action: AuditAction.CREATE,
+      resource: AuditResource.USER,
+      resourceId: priya.id,
+      userId: sarah.id,
+      organizationId: hq.id,
+      details: JSON.stringify({ email: 'priya@west.com', role: 'viewer', organization: 'West Office' }),
+      timestamp: pastTimestamp(4, 3),
+    },
+    // Sarah created tasks (3 days ago)
+    {
+      action: AuditAction.CREATE,
+      resource: AuditResource.TASK,
+      resourceId: savedTasks[0].id,
+      userId: sarah.id,
+      organizationId: east.id,
+      details: JSON.stringify({ title: 'Q1 Compliance Review', priority: 'high', status: 'todo' }),
+      timestamp: pastTimestamp(3, 8),
+    },
+    {
+      action: AuditAction.CREATE,
+      resource: AuditResource.TASK,
+      resourceId: savedTasks[1].id,
+      userId: sarah.id,
+      organizationId: hq.id,
+      details: JSON.stringify({ title: 'Update Security Protocols', priority: 'urgent', status: 'todo' }),
+      timestamp: pastTimestamp(3, 7),
+    },
+    // Marcus created tasks (3 days ago)
+    {
+      action: AuditAction.CREATE,
+      resource: AuditResource.TASK,
+      resourceId: savedTasks[2].id,
+      userId: marcus.id,
+      organizationId: east.id,
+      details: JSON.stringify({ title: 'Office Supply Inventory', priority: 'low', status: 'todo' }),
+      timestamp: pastTimestamp(3, 5),
+    },
+    {
+      action: AuditAction.CREATE,
+      resource: AuditResource.TASK,
+      resourceId: savedTasks[3].id,
+      userId: marcus.id,
+      organizationId: east.id,
+      details: JSON.stringify({ title: 'Team Standup Schedule', priority: 'medium', status: 'todo' }),
+      timestamp: pastTimestamp(3, 4),
+    },
+    // Jordan created tasks (2 days ago)
+    {
+      action: AuditAction.CREATE,
+      resource: AuditResource.TASK,
+      resourceId: savedTasks[4].id,
+      userId: jordan.id,
+      organizationId: west.id,
+      details: JSON.stringify({ title: 'New Hire Onboarding - West', priority: 'high', status: 'todo' }),
+      timestamp: pastTimestamp(2, 6),
+    },
+    {
+      action: AuditAction.CREATE,
+      resource: AuditResource.TASK,
+      resourceId: savedTasks[5].id,
+      userId: jordan.id,
+      organizationId: west.id,
+      details: JSON.stringify({ title: 'HVAC Maintenance Request', priority: 'medium', status: 'todo' }),
+      timestamp: pastTimestamp(2, 5),
+    },
+    // Sarah updated Q1 Compliance Review: todo → in_progress (2 days ago)
+    {
+      action: AuditAction.UPDATE,
+      resource: AuditResource.TASK,
+      resourceId: savedTasks[0].id,
+      userId: sarah.id,
+      organizationId: east.id,
+      details: JSON.stringify({ changes: { status: { from: 'todo', to: 'in_progress' } } }),
+      timestamp: pastTimestamp(2, 3),
+    },
+    // Marcus updated Team Standup Schedule: todo → done (1 day ago)
+    {
+      action: AuditAction.UPDATE,
+      resource: AuditResource.TASK,
+      resourceId: savedTasks[3].id,
+      userId: marcus.id,
+      organizationId: east.id,
+      details: JSON.stringify({ changes: { status: { from: 'todo', to: 'done' } } }),
+      timestamp: pastTimestamp(1, 8),
+    },
+    // Jordan updated New Hire Onboarding: todo → in_progress (1 day ago)
+    {
+      action: AuditAction.UPDATE,
+      resource: AuditResource.TASK,
+      resourceId: savedTasks[4].id,
+      userId: jordan.id,
+      organizationId: west.id,
+      details: JSON.stringify({ changes: { status: { from: 'todo', to: 'in_progress' } } }),
+      timestamp: pastTimestamp(1, 5),
+    },
+    // Sarah updated Vendor Contract Renewal priority: high → urgent (1 day ago)
+    {
+      action: AuditAction.UPDATE,
+      resource: AuditResource.TASK,
+      resourceId: savedTasks[7].id,
+      userId: sarah.id,
+      organizationId: hq.id,
+      details: JSON.stringify({ changes: { priority: { from: 'high', to: 'urgent' }, status: { from: 'todo', to: 'in_progress' } } }),
+      timestamp: pastTimestamp(1, 2),
+    },
+    // Sarah updated Alex's role: viewer (no change, but updated name) (today)
+    {
+      action: AuditAction.UPDATE,
+      resource: AuditResource.USER,
+      resourceId: alex.id,
+      userId: sarah.id,
+      organizationId: hq.id,
+      details: JSON.stringify({ changes: { name: { from: 'Alex K.', to: 'Alex Kim' } } }),
+      timestamp: pastTimestamp(0, 4),
+    },
+  ];
+
+  for (const log of auditLogs) {
+    await auditRepo.save(log);
+  }
+  console.log(`  ✅ Audit logs created: ${auditLogs.length} entries`);
+
   await dataSource.destroy();
-  console.log('\\n🎉 Seeding complete! Demo credentials:');
+  console.log('\n🎉 Seeding complete! Demo credentials:');
   console.log('  Owner:  sarah@hq.com / Password123!');
   console.log('  Admin:  marcus@east.com / Password123!');
   console.log('  Admin:  jordan@west.com / Password123!');
@@ -212,7 +416,8 @@ async function seed() {
   console.log('  Viewer: alex@east.com / Password123!');
 }
 
-seed().catch((err) => {
+const force = process.argv.includes('--force');
+seed(force).catch((err) => {
   console.error('❌ Seeding failed:', err);
   process.exit(1);
 });
