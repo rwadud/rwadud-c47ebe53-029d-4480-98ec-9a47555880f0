@@ -1,10 +1,10 @@
-# 🔐 STMS — Secure Task Management System
+# STMS - Secure Task Management System
 
 A production-grade task management application with **role-based access control**, **organizational hierarchy**, and a **Kanban board** interface. Built as an NX monorepo with NestJS and Angular.
 
 ---
 
-## ⚡ Quick Start (3 Commands)
+## Quick Start (3 Commands)
 
 ```bash
 npm install
@@ -24,59 +24,106 @@ Open **http://localhost:4200** and sign in with any demo account:
 
 ---
 
-## 🏗 Architecture
+## Architecture
 
 ```
 stms/
 ├── apps/
-│   ├── api/              # NestJS backend
+│   ├── api/                           # NestJS backend
 │   │   └── src/
-│   │       ├── auth/     # JWT + Passport authentication
-│   │       ├── guards/   # RBAC guard + org-scope service
-│   │       ├── tasks/    # Task CRUD with ownership checks
-│   │       ├── categories/ # Category management (Owner-only)
-│   │       ├── audit-log/  # Immutable audit trail
-│   │       ├── entities/ # TypeORM entities (SQLite)
-│   │       └── seed.ts   # Idempotent database seeder
-│   └── web/              # Angular frontend
+│   │       ├── main.ts                # Bootstrap, global pipes/filters
+│   │       ├── app.module.ts          # Root module, TypeORM + ConfigModule
+│   │       ├── auth/                  # JWT + Passport authentication
+│   │       │   ├── auth.controller.ts
+│   │       │   ├── auth.service.ts
+│   │       │   └── jwt.strategy.ts
+│   │       ├── tasks/                 # Task CRUD with ownership checks
+│   │       │   ├── tasks.controller.ts
+│   │       │   ├── tasks.service.ts
+│   │       │   └── task.entity.ts
+│   │       ├── categories/            # Category management
+│   │       │   ├── categories.controller.ts
+│   │       │   ├── categories.service.ts
+│   │       │   └── category.entity.ts
+│   │       ├── organizations/         # Org hierarchy CRUD
+│   │       │   ├── organizations.controller.ts
+│   │       │   ├── organizations.service.ts
+│   │       │   └── organization.entity.ts
+│   │       ├── users/                 # User management (Owner-only)
+│   │       │   ├── users.controller.ts
+│   │       │   ├── users.service.ts
+│   │       │   └── user.entity.ts
+│   │       ├── audit-log/             # Immutable audit trail
+│   │       │   ├── audit-log.controller.ts
+│   │       │   ├── audit-log.service.ts
+│   │       │   └── audit-log.entity.ts
+│   │       ├── common/                # Cross-cutting concerns
+│   │       │   ├── filters/           # HttpExceptionFilter
+│   │       │   ├── interceptors/      # AuditLogInterceptor
+│   │       │   ├── middleware/        # CsrfMiddleware
+│   │       │   └── services/          # OrgScopeService
+│   │       └── seed/                  # Idempotent database seeder
+│   │
+│   └── web/                           # Angular frontend
 │       └── src/app/
-│           ├── pages/    # Login, Dashboard, AuditLog, Categories
-│           ├── services/ # Auth, Task, Category, AuditLog, Toast, Theme
-│           └── interceptors/ # JWT auto-attach + 401 handling
-├── libs/
-│   ├── data/             # Shared enums, interfaces, DTOs
-│   └── auth/             # RBAC permission matrix (shared)
-└── .env                  # Environment variables
+│           ├── pages/                 # Login, Dashboard, Categories,
+│           │                          # Users, Organizations, AuditLog
+│           ├── components/            # TaskCard, TaskModal, ConfirmDialog
+│           ├── services/              # Auth, Task, Category, User,
+│           │                          # Organization, AuditLog, Permission,
+│           │                          # Toast, Theme
+│           ├── guards/                # AuthGuard, PermissionGuard
+│           └── interceptors/          # JWT auto-attach + 401 handling
+│
+└── libs/
+    ├── data/                          # Shared types, DTOs, enums
+    │   └── src/lib/
+    │       ├── interfaces/            # Task, User, Organization, etc.
+    │       ├── dto/                   # CreateTaskDto, UpdateUserDto, etc.
+    │       ├── enums/                 # TaskStatus, TaskPriority, Role, etc.
+    │       └── permissions/           # Role → Permission matrix
+    │
+    └── auth/                          # Shared auth utilities
+        └── src/lib/
+            ├── guards/                # JwtAuthGuard, RbacGuard
+            ├── decorators/            # @Roles, @Public, @CurrentUser, @Auditable
+            └── types/                 # PermissionSet
 ```
 
 ### Technology Stack
 
 | Layer      | Technology                                    |
 |------------|-----------------------------------------------|
-| Frontend   | Angular 20, TailwindCSS v4, Angular CDK       |
+| Frontend   | Angular 20, Vanilla CSS, Angular CDK          |
 | Backend    | NestJS 11, TypeORM 0.3, Passport JWT          |
-| Database   | SQLite (via better-sqlite3) — zero config     |
+| Database   | SQLite (via better-sqlite3) - zero config     |
 | Monorepo   | NX with integrated workspace                  |
 | Auth       | JWT tokens, bcrypt password hashing            |
+| Testing    | Jest (backend + frontend)                      |
 
 ---
 
-## 🛡 RBAC & Security
+## RBAC & Security
 
 ### Permission Matrix
 
-The RBAC system uses a **data-driven permission matrix** (not if/else chains), defined in `libs/auth/src/lib/permissions.ts`:
+The RBAC system uses a **data-driven permission matrix** defined in `libs/data/src/lib/permissions/permission-matrix.ts`:
 
 | Permission          | Owner | Admin | Viewer |
 |---------------------|:-----:|:-----:|:------:|
-| `task:create`       |  ✅   |  ✅   |   ❌   |
-| `task:read`         |  ✅   |  ✅   |   ✅   |
-| `task:edit_own`     |  ✅   |  ✅   |   ❌   |
-| `task:edit_any`     |  ✅   |   ❌  |   ❌   |
-| `task:delete_own`   |  ✅   |  ✅   |   ❌   |
-| `task:delete_any`   |  ✅   |   ❌  |   ❌   |
-| `category:manage`   |  ✅   |   ❌  |   ❌   |
-| `audit:view`        |  ✅   |  ✅   |   ❌   |
+| `task:create`       |  Yes  |  Yes  |  No    |
+| `task:view`         |  Yes  |  Yes  |   Yes  |
+| `task:edit_own`     |  Yes  |  Yes  |  No    |
+| `task:edit_any`     |  Yes  |  No   |  No    |
+| `task:delete_own`   |  Yes  |  Yes  |  No    |
+| `task:delete_any`   |  Yes  |  No   |  No    |
+| `category:create`   |  Yes  |  No   |  No    |
+| `category:edit`     |  Yes  |  No   |  No    |
+| `category:delete`   |  Yes  |  No   |  No    |
+| `category:view`     |  Yes  |  Yes  |   Yes  |
+| `user:manage`       |  Yes  |  No   |  No    |
+| `org:manage`        |  Yes  |  No   |  No    |
+| `audit:view`        |  Yes  |  Yes  |  No    |
 
 ### Organization Hierarchy
 
@@ -98,13 +145,14 @@ HQ (Parent Org)
 - **bcrypt** password hashing (10 rounds)
 - **RBAC Guard** on every protected endpoint
 - **Organization-level data isolation**
-- **Audit trail** for all create/update/delete operations
+- **Audit trail** for all create/update/delete operations (diff-tracked)
 - **CORS** configured for dev frontend origin
 - **Input validation** via class-validator pipes
+- **Route-level permission guards** on frontend
 
 ---
 
-## 📊 Entity Relationship Diagram
+## Entity Relationship Diagram
 
 ```
 ┌────────────────┐       ┌──────────────────┐
@@ -149,7 +197,7 @@ HQ (Parent Org)
 
 ---
 
-## 🔌 API Reference
+## API Reference
 
 All endpoints prefixed with `/api`. Protected routes require `Authorization: Bearer <token>`.
 
@@ -165,7 +213,7 @@ Response: { "accessToken": "jwt...", "user": { id, email, name, role, organizati
 
 | Method | Endpoint              | Permission           | Description             |
 |--------|----------------------|----------------------|-------------------------|
-| GET    | `/api/tasks`         | `task:read`          | List tasks (org-scoped) |
+| GET    | `/api/tasks`         | `task:view`          | List tasks (org-scoped) |
 | POST   | `/api/tasks`         | `task:create`        | Create task             |
 | PUT    | `/api/tasks/:id`     | `task:edit_own/any`  | Update task             |
 | DELETE | `/api/tasks/:id`     | `task:delete_own/any`| Delete task             |
@@ -175,12 +223,30 @@ Response: { "accessToken": "jwt...", "user": { id, email, name, role, organizati
 
 ### Categories
 
-| Method | Endpoint                  | Permission         | Description    |
-|--------|--------------------------|--------------------| --------------|
-| GET    | `/api/categories`        | `task:read`        | List all       |
-| POST   | `/api/categories`        | `category:manage`  | Create (Owner) |
-| PUT    | `/api/categories/:id`    | `category:manage`  | Update (Owner) |
-| DELETE | `/api/categories/:id`    | `category:manage`  | Delete (Owner) |
+| Method | Endpoint                  | Permission          | Description    |
+|--------|--------------------------|---------------------| --------------|
+| GET    | `/api/categories`        | `category:view`     | List all       |
+| POST   | `/api/categories`        | `category:create`   | Create (Owner) |
+| PUT    | `/api/categories/:id`    | `category:edit`     | Update (Owner) |
+| DELETE | `/api/categories/:id`    | `category:delete`   | Delete (Owner) |
+
+### Users
+
+| Method | Endpoint             | Permission      | Description              |
+|--------|---------------------|-----------------|--------------------------|
+| GET    | `/api/users`        | `user:manage`   | List users (org-scoped)  |
+| POST   | `/api/users`        | `user:manage`   | Create user (Owner)      |
+| PUT    | `/api/users/:id`    | `user:manage`   | Update user (Owner)      |
+| DELETE | `/api/users/:id`    | `user:manage`   | Delete user (Owner)      |
+
+### Organizations
+
+| Method | Endpoint                  | Permission     | Description             |
+|--------|--------------------------|----------------|-------------------------|
+| GET    | `/api/organizations`     | `org:manage`   | List all organizations  |
+| POST   | `/api/organizations`     | `org:manage`   | Create organization     |
+| PUT    | `/api/organizations/:id` | `org:manage`   | Update organization     |
+| DELETE | `/api/organizations/:id` | `org:manage`   | Delete organization     |
 
 ### Audit Log
 
@@ -190,7 +256,7 @@ Response: { "accessToken": "jwt...", "user": { id, email, name, role, organizati
 
 ---
 
-## 🧪 Sample Requests
+## Sample Requests
 
 ```bash
 # Login
@@ -238,19 +304,21 @@ curl -s -X POST http://localhost:3000/api/tasks \
 
 ---
 
-## 🎨 Frontend Features
+## Frontend Features
 
 - **Kanban Board** with drag-and-drop (To Do → In Progress → Done)
-- **Role-aware UI** — buttons/actions hidden based on permissions
+- **Role-aware UI** - buttons/actions hidden based on permissions
 - **Dark/Light mode** with system preference detection
-- **Responsive design** — sidebar collapses to bottom nav on mobile
+- **Responsive design** - sidebar collapses to bottom nav on mobile
 - **Toast notifications** for all CRUD feedback
 - **Inline filters** for category and priority
+- **User Management** page (Owner-only) with role assignment
+- **Organization Management** page (Owner-only) with hierarchy
 - **Demo credential buttons** on login page for quick evaluation
 
 ---
 
-## 📋 Environment Variables
+## Environment Variables
 
 | Variable         | Default                    | Description                    |
 |------------------|----------------------------|--------------------------------|
@@ -261,20 +329,24 @@ curl -s -X POST http://localhost:3000/api/tasks \
 
 ---
 
-## 🧪 Running Tests
+## Running Tests
 
 ```bash
-npx nx test api      # Backend unit tests
-npx nx test web      # Frontend unit tests
+npx nx test api      # Backend unit tests  (AuthService, RBAC, all services)
+npx nx test web      # Frontend unit tests (services, components)
+npx nx test auth     # Auth library tests  (permission matrix, RbacGuard)
+npx nx test data     # Data library tests  (permission matrix)
 ```
 
 ---
 
-## 📝 Design Decisions
+## Design Decisions
 
-1. **SQLite** — Zero-config database for instant evaluation. No Docker, no PostgreSQL setup.
-2. **Data-driven RBAC** — Permission matrix in `libs/auth` is a lookup table, making it trivial to add roles/permissions.
-3. **Org-scoping at query level** — `OrgScopeService` ensures data isolation without middleware magic.
-4. **Shared libs** — `@stms/data` and `@stms/auth` are used by both frontend and backend, ensuring type safety.
-5. **Idempotent seed** — Run `npx nx run api:seed` repeatedly without duplicating data.
-6. **Standalone Angular components** — Modern Angular patterns with signals, lazy loading, and functional guards.
+1. **SQLite** - Zero-config database for instant evaluation. No Docker, no PostgreSQL setup.
+2. **Data-driven RBAC** - Permission matrix in `libs/data` is a lookup table, making it trivial to add roles/permissions.
+3. **Org-scoping at query level** - `OrgScopeService` ensures data isolation without middleware magic.
+4. **Shared libs** - `@stms/data` and `@stms/auth` are used by both frontend and backend, ensuring type safety across the stack.
+5. **Co-located entities** - Each backend module contains its own TypeORM entity alongside its service and controller.
+6. **Idempotent seed** - Run `npx nx run api:seed` repeatedly without duplicating data.
+7. **Standalone Angular components** - Modern Angular patterns with signals, lazy loading, and functional guards.
+8. **Diff-tracked audit logging** - Only actual changes are logged, not entire DTOs.
