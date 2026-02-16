@@ -15,14 +15,14 @@ import { Permission } from '@stms/data';
       <div class="app-layout">
         <nav class="sidebar">
           <div class="sidebar-header">
-            <div class="sidebar-logo">
+            <a routerLink="/dashboard" class="sidebar-logo">
               <svg width="28" height="28" viewBox="0 0 40 40" fill="none">
                 <rect width="40" height="40" rx="10" fill="var(--color-accent)"/>
                 <path d="M12 14h16M12 20h16M12 26h10" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
                 <circle cx="28" cy="26" r="3" fill="white"/>
               </svg>
               <span class="sidebar-brand">STMS</span>
-            </div>
+            </a>
           </div>
 
           <div class="sidebar-nav">
@@ -121,6 +121,7 @@ import { Permission } from '@stms/data';
       display: flex;
       align-items: center;
       gap: 10px;
+      text-decoration: none;
     }
     .sidebar-brand {
       font-size: 18px;
