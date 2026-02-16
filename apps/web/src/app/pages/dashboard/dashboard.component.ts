@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, computed } from '@angular/core';
+import { Component, OnInit, signal, computed, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CdkDragDrop, DragDropModule, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
@@ -12,11 +12,12 @@ import { Permission } from '@stms/data';
 import { TaskCardComponent } from '../../components/task-card/task-card.component';
 import { TaskFormModalComponent, TaskFormResult } from '../../components/task-modal/task-modal.component';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
+import { TaskProgressBarComponent } from '../../components/task-progress-bar/task-progress-bar.component';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule, DragDropModule, TaskCardComponent, TaskFormModalComponent, ConfirmDialogComponent],
+  imports: [CommonModule, FormsModule, DragDropModule, TaskCardComponent, TaskFormModalComponent, ConfirmDialogComponent, TaskProgressBarComponent],
   template: `
     <div class="dashboard">
       <!-- Page Header -->
@@ -62,6 +63,11 @@ import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-
             <option value="low">Low</option>
           </select>
       </div>
+
+      <!-- Task Completion Visualization -->
+      @if (!loading() && allTasks().length > 0) {
+        <app-task-progress-bar [tasks]="filteredTasks()" />
+      }
 
       <!-- Loading State -->
       @if (loading()) {
@@ -282,6 +288,27 @@ export class DashboardComponent implements OnInit {
     private orgService: OrganizationService,
     private toast: ToastService,
   ) { }
+
+  // Keyboard shortcuts: N = new task, Escape = close modal/dialog
+  @HostListener('document:keydown', ['$event'])
+  handleKeyboard(event: KeyboardEvent) {
+    // Don't trigger shortcuts when typing in inputs
+    const tag = (event.target as HTMLElement)?.tagName?.toLowerCase();
+    if (tag === 'input' || tag === 'textarea' || tag === 'select') return;
+
+    if (event.key === 'Escape') {
+      if (this.deleteTarget()) {
+        this.cancelDelete();
+      } else if (this.showModal()) {
+        this.closeModal();
+      }
+    } else if (event.key === 'n' && !event.ctrlKey && !event.metaKey && !event.altKey) {
+      if (!this.showModal() && !this.deleteTarget() && this.canCreateTask()) {
+        event.preventDefault();
+        this.openCreateModal();
+      }
+    }
+  }
 
   ngOnInit() {
     this.loadData();

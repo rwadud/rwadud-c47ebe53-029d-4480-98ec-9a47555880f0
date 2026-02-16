@@ -54,7 +54,8 @@
         },
         "development": {
           "buildTarget": "web:build:development",
-          "proxyConfig": "apps/web/proxy.conf.json"
+          "proxyConfig": "apps/web/proxy.conf.json",
+          "host": "0.0.0.0"
         }
       },
       "defaultConfiguration": "development"
