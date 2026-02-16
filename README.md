@@ -314,6 +314,8 @@ curl -s -X POST http://localhost:3000/api/tasks \
 - **Inline filters** for category and priority
 - **User Management** page (Owner-only) with role assignment
 - **Organization Management** page (Owner-only) with hierarchy
+- **Task completion visualization** — progress bar showing done vs remaining tasks
+- **Keyboard shortcuts** — `N` to create new task, `Escape` to close modals
 - **Demo credential buttons** on login page for quick evaluation
 
 ---
@@ -350,3 +352,32 @@ npx nx test data     # Data library tests  (permission matrix)
 6. **Idempotent seed** - Run `npx nx run api:seed` repeatedly without duplicating data.
 7. **Standalone Angular components** - Modern Angular patterns with signals, lazy loading, and functional guards.
 8. **Diff-tracked audit logging** - Only actual changes are logged, not entire DTOs.
+
+---
+
+## Future Considerations
+
+### Advanced Role Delegation
+
+- **Custom roles** — Allow organizations to define their own roles beyond Owner/Admin/Viewer, with fine-grained permission sets.
+- **Role delegation chains** — Let Owners delegate specific permissions to Admins without promoting them to full Owner status.
+- **Per-resource permissions** — Assign permissions scoped to individual tasks or categories rather than entire organizations.
+
+### Production-Ready Security
+
+- **JWT refresh tokens** — Implement a refresh token rotation flow with short-lived access tokens (5 min) and long-lived refresh tokens (7 days) stored in HTTP-only cookies. Detect token reuse to identify stolen refresh tokens.
+- **Content Security Policy** — Add CSP headers to mitigate XSS and injection attacks in production deployments.
+- **Rate limiting** — Add per-IP and per-user rate limiting on auth endpoints to prevent brute-force attacks.
+- **Password policies** — Enforce minimum complexity, track password history, and support account lockout after failed attempts.
+
+### RBAC Caching
+
+- **In-memory permission cache** — Cache the permission matrix lookups per user session to avoid repeated computation on every request. Invalidate on role or organization changes.
+- **Redis-backed cache** — For multi-instance deployments, use Redis to share permission cache across API servers with TTL-based expiration.
+
+### Scaling Permission Checks
+
+- **Bitwise permissions** — Replace the array-based permission matrix with a bitfield representation for O(1) permission checks instead of O(n) `includes()` lookups.
+- **Database-backed permissions** — Move the permission matrix to a `permissions` table for runtime configurability without code deployments.
+- **Organization tree caching** — Pre-compute and cache the organization hierarchy to avoid recursive queries when resolving parent/child visibility scopes.
+- **Pagination for scoped queries** — Add cursor-based pagination to all list endpoints to handle organizations with thousands of tasks efficiently.
