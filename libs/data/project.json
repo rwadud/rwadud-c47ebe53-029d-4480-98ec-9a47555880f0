@@ -1,0 +1,17 @@
+{
+  "name": "data",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/data/src",
+  "projectType": "library",
+  "tags": [],
+  "// targets": "to see all targets run: nx show project data --web",
+  "targets": {
+    "test": {
+      "executor": "@nx/jest:jest",
+      "options": {
+        "jestConfig": "libs/data/jest.config.ts",
+        "passWithNoTests": true
+      }
+    }
+  }
+}
