@@ -20,7 +20,7 @@ import { ToastService } from '../../services/toast.service';
               <circle cx="28" cy="26" r="3" fill="white"/>
             </svg>
           </div>
-          <h1>Secure Task Manager</h1>
+          <h1>Secure Task Management System</h1>
           <p class="text-secondary">Sign in to your account</p>
         </div>
 
@@ -95,27 +95,8 @@ import { ToastService } from '../../services/toast.service';
       align-items: center;
       justify-content: center;
       padding: 20px;
-      background: linear-gradient(-45deg, #667eea, #764ba2, #6366f1, #4f46e5, #7c3aed);
-      background-size: 400% 400%;
-      animation: gradientFlow 12s ease infinite;
+      background: #4f46e5;
       position: relative;
-      overflow: hidden;
-    }
-    .login-page::before {
-      content: '';
-      position: absolute;
-      top: -50%;
-      left: -50%;
-      width: 200%;
-      height: 200%;
-      background: radial-gradient(circle at 30% 40%, rgba(255,255,255,0.08) 0%, transparent 50%),
-                  radial-gradient(circle at 70% 60%, rgba(255,255,255,0.05) 0%, transparent 50%);
-      animation: gradientFlow 8s ease infinite reverse;
-    }
-    @keyframes gradientFlow {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
     }
     .login-card {
       background: rgba(255, 255, 255, 0.95);

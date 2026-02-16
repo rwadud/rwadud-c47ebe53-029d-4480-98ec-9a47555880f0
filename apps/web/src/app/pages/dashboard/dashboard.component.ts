@@ -188,9 +188,8 @@ import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-
       display: flex;
       flex-direction: column;
       min-height: 300px;
-      border: 1px solid rgba(226, 232, 240, 0.4);
+      border: 1px solid var(--color-border);
     }
-    .dark .kanban-column { border-color: rgba(51, 65, 85, 0.3); }
     .column-header {
       display: flex;
       align-items: center;
