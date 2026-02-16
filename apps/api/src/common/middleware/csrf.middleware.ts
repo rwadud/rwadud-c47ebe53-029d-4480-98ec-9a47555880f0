@@ -35,7 +35,8 @@ export class CsrfMiddleware implements NestMiddleware {
     });
 
     // Safe methods and exempt paths skip CSRF check
-    if (SAFE_METHODS.has(req.method) || CSRF_EXEMPT_PATHS.includes(req.path)) {
+    const requestPath = req.originalUrl?.split('?')[0] || req.path;
+    if (SAFE_METHODS.has(req.method) || CSRF_EXEMPT_PATHS.some(p => requestPath === p || requestPath.endsWith(p))) {
       return next();
     }
 
