@@ -7,13 +7,16 @@ import { TaskService } from '../../services/task.service';
 import { CategoryService } from '../../services/category.service';
 import { OrganizationService } from '../../services/organization.service';
 import { ToastService } from '../../services/toast.service';
-import { ITask, ICategory, IOrganization, TaskStatus, TaskPriority, CreateTaskDto, UpdateTaskDto } from '@stms/data';
+import { ITask, ICategory, IOrganization, TaskStatus, TaskPriority } from '@stms/data';
 import { Permission } from '@stms/auth';
+import { TaskCardComponent } from '../../shared/task-card.component';
+import { TaskFormModalComponent, TaskFormResult } from '../../shared/task-form-modal.component';
+import { ConfirmDialogComponent } from '../../shared/confirm-dialog.component';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule, DragDropModule],
+  imports: [CommonModule, FormsModule, DragDropModule, TaskCardComponent, TaskFormModalComponent, ConfirmDialogComponent],
   template: `
     <div class="dashboard">
       <!-- Filters Bar -->
@@ -88,45 +91,13 @@ import { Permission } from '@stms/auth';
                   <div class="task-card card card-interactive"
                        [cdkDragDisabled]="!canDragDrop()"
                        cdkDrag [cdkDragData]="task">
-                    <div class="task-header">
-                      <span class="badge" [class]="'badge-' + task.priority">
-                        {{ task.priority }}
-                      </span>
-                      @if (task.category) {
-                        <span class="task-category text-xs text-muted">{{ task.category.name }}</span>
-                      }
-                    </div>
-                    <h4 class="task-title">{{ task.title }}</h4>
-                    @if (task.description) {
-                      <p class="task-desc text-sm text-secondary">{{ task.description }}</p>
-                    }
-                    @if (task.dueDate) {
-                      <div class="task-due" [class.overdue]="isOverdue(task.dueDate)">
-                        <span class="material-symbols-outlined" style="font-size: 14px">calendar_today</span> {{ formatDate(task.dueDate) }}
-                      </div>
-                    }
-                    <div class="task-footer">
-                      <div class="task-meta">
-                        @if (task.createdBy) {
-                          <span class="text-xs text-muted">{{ task.createdBy.name }}</span>
-                        }
-                        @if (task.organization) {
-                          <span class="text-xs text-muted hide-mobile">{{ task.organization.name }}</span>
-                        }
-                      </div>
-                      <div class="task-actions">
-                        @if (canEditThisTask(task)) {
-                          <button class="btn btn-ghost btn-icon btn-sm" title="Edit" (click)="openEditModal(task)">
-                            <span class="material-symbols-outlined" style="font-size: 16px">edit</span>
-                          </button>
-                        }
-                        @if (canDeleteThisTask(task)) {
-                          <button class="btn btn-ghost btn-icon btn-sm" title="Delete" (click)="confirmDelete(task)">
-                            <span class="material-symbols-outlined" style="font-size: 16px">delete</span>
-                          </button>
-                        }
-                      </div>
-                    </div>
+                    <app-task-card
+                      [task]="task"
+                      [canEdit]="canEditThisTask(task)"
+                      [canDelete]="canDeleteThisTask(task)"
+                      (edit)="openEditModal($event)"
+                      (delete)="confirmDelete($event)"
+                    />
                   </div>
                 }
                 @if (getColumnTasks(column.status).length === 0) {
@@ -143,98 +114,28 @@ import { Permission } from '@stms/auth';
 
     <!-- Create/Edit Modal -->
     @if (showModal()) {
-      <div class="modal-backdrop" (click)="closeModal()">
-        <div class="modal" (click)="$event.stopPropagation()">
-          <h3 style="margin: 0 0 20px; font-size: 18px">
-            {{ editingTask() ? 'Edit Task' : 'Create Task' }}
-          </h3>
-          <form (ngSubmit)="saveTask()" class="flex flex-col gap-3">
-            <div>
-              <label class="form-label">Title *</label>
-              <input class="form-input" [(ngModel)]="modalData.title" name="title" required placeholder="Task title"/>
-            </div>
-            <div>
-              <label class="form-label">Description</label>
-              <textarea class="form-input" [(ngModel)]="modalData.description" name="desc" rows="3" placeholder="Optional description"></textarea>
-            </div>
-            <div class="flex gap-3">
-              <div class="flex-1">
-                <label class="form-label">Status</label>
-                <select class="form-input form-select" [(ngModel)]="modalData.status" name="status">
-                  <option value="todo">To Do</option>
-                  <option value="in_progress">In Progress</option>
-                  <option value="done">Done</option>
-                </select>
-              </div>
-              <div class="flex-1">
-                <label class="form-label">Priority</label>
-                <select class="form-input form-select" [(ngModel)]="modalData.priority" name="priority">
-                  <option value="low">Low</option>
-                  <option value="medium">Medium</option>
-                  <option value="high">High</option>
-                  <option value="urgent">Urgent</option>
-                </select>
-              </div>
-            </div>
-            <div class="flex gap-3">
-              <div class="flex-1">
-                <label class="form-label">Category</label>
-                <select class="form-input form-select" [(ngModel)]="modalData.categoryId" name="category">
-                  <option [ngValue]="null">No Category</option>
-                  @for (cat of categories(); track cat.id) {
-                    <option [ngValue]="cat.id">{{ cat.name }}</option>
-                  }
-                </select>
-              </div>
-              <div class="flex-1">
-                <label class="form-label">Due Date</label>
-                <input class="form-input" type="date" [(ngModel)]="modalData.dueDate" name="dueDate" />
-              </div>
-            </div>
-            @if (!editingTask() && organizations().length > 1) {
-              <div>
-                <label class="form-label">Organization</label>
-                <select class="form-input form-select" [(ngModel)]="modalData.organizationId" name="org">
-                  @for (org of organizations(); track org.id) {
-                    <option [ngValue]="org.id">{{ org.name }}</option>
-                  }
-                </select>
-                <div class="text-xs text-muted" style="margin-top: 4px">
-                  Assign this task to a specific organization
-                </div>
-              </div>
-            }
-            <div class="flex gap-2 justify-between mt-2">
-              <button type="button" class="btn btn-secondary" (click)="closeModal()">Cancel</button>
-              <button type="submit" class="btn btn-primary" [disabled]="saving()">
-                @if (saving()) {
-                  <span class="spinner"></span>
-                }
-                {{ editingTask() ? 'Update' : 'Create' }}
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
+      <app-task-form-modal
+        [task]="editingTask()"
+        [categories]="categories()"
+        [organizations]="organizations()"
+        [saving]="saving()"
+        [defaultOrganizationId]="authService.currentUser()?.organizationId ?? null"
+        (save)="onTaskFormSave($event)"
+        (cancel)="closeModal()"
+      />
     }
 
     <!-- Delete Confirmation Modal -->
     @if (deleteTarget()) {
-      <div class="modal-backdrop" (click)="cancelDelete()">
-        <div class="modal" (click)="$event.stopPropagation()" style="max-width: 400px">
-          <h3 style="margin: 0 0 8px; font-size: 18px;">Delete Task</h3>
-          <p class="text-secondary text-sm" style="margin: 0 0 20px">
-            Are you sure you want to delete "{{ deleteTarget()!.title }}"? This cannot be undone.
-          </p>
-          <div class="flex gap-2 justify-between">
-            <button class="btn btn-secondary" (click)="cancelDelete()">Cancel</button>
-            <button class="btn btn-danger" (click)="doDelete()" [disabled]="saving()">
-              @if (saving()) { <span class="spinner"></span> }
-              Delete
-            </button>
-          </div>
-        </div>
-      </div>
+      <app-confirm-dialog
+        title="Delete Task"
+        [message]="'Are you sure you want to delete &quot;' + deleteTarget()!.title + '&quot;? This cannot be undone.'"
+        confirmLabel="Delete"
+        [destructive]="true"
+        [loading]="saving()"
+        (confirmed)="doDelete()"
+        (cancelled)="cancelDelete()"
+      />
     }
   `,
   styles: [`
@@ -347,61 +248,6 @@ import { Permission } from '@stms/auth';
     .task-card:hover {
       border-left-color: var(--color-accent);
     }
-    .task-header {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 8px;
-    }
-    .task-title {
-      margin: 0 0 4px;
-      font-size: 14px;
-      font-weight: 600;
-      line-height: 1.4;
-    }
-    .task-desc {
-      margin: 0 0 8px;
-      line-height: 1.5;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-      font-size: 13px;
-      color: var(--color-text-secondary);
-    }
-    .task-due {
-      font-size: 12px;
-      color: var(--color-text-muted);
-      margin-bottom: 8px;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-    .task-due.overdue {
-      color: var(--color-danger);
-      font-weight: 600;
-    }
-    .task-footer {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      padding-top: 8px;
-      border-top: 1px solid var(--color-border);
-      margin-top: 4px;
-    }
-    .task-meta {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .task-actions {
-      display: flex;
-      gap: 2px;
-      opacity: 0;
-      transition: opacity 0.2s;
-    }
-    .task-card:hover .task-actions { opacity: 1; }
     @media (max-width: 768px) {
       .kanban-board {
         grid-template-columns: 1fr;
@@ -409,7 +255,6 @@ import { Permission } from '@stms/auth';
       .filters-bar { flex-direction: column; align-items: stretch; }
       .filters-right { flex-direction: column; }
       .filter-select { width: 100%; }
-      .task-actions { opacity: 1; }
     }
   `],
 })
@@ -427,16 +272,6 @@ export class DashboardComponent implements OnInit {
   filterCategory = '';
   filterPriority = '';
   filterOrg = '';
-
-  modalData = {
-    title: '',
-    description: '',
-    status: 'todo' as string,
-    priority: 'medium' as string,
-    categoryId: null as number | null,
-    dueDate: '' as string,
-    organizationId: null as number | null,
-  };
 
   columns = [
     { status: TaskStatus.TODO, label: 'To Do', color: '#94a3b8' },
@@ -543,25 +378,11 @@ export class DashboardComponent implements OnInit {
 
   openCreateModal() {
     this.editingTask.set(null);
-    this.modalData = {
-      title: '', description: '', status: 'todo',
-      priority: 'medium', categoryId: null, dueDate: '',
-      organizationId: this.authService.currentUser()?.organizationId ?? null,
-    };
     this.showModal.set(true);
   }
 
   openEditModal(task: ITask) {
     this.editingTask.set(task);
-    this.modalData = {
-      title: task.title,
-      description: task.description,
-      status: task.status,
-      priority: task.priority,
-      categoryId: task.categoryId,
-      dueDate: task.dueDate || '',
-      organizationId: task.organizationId,
-    };
     this.showModal.set(true);
   }
 
@@ -570,25 +391,12 @@ export class DashboardComponent implements OnInit {
     this.editingTask.set(null);
   }
 
-  saveTask() {
-    if (!this.modalData.title.trim()) {
-      this.toast.error('Title is required');
-      return;
-    }
-
+  onTaskFormSave(result: TaskFormResult) {
     this.saving.set(true);
     const editing = this.editingTask();
 
-    if (editing) {
-      const dto: UpdateTaskDto = {
-        title: this.modalData.title,
-        description: this.modalData.description,
-        status: this.modalData.status as TaskStatus,
-        priority: this.modalData.priority as TaskPriority,
-        categoryId: this.modalData.categoryId,
-        dueDate: this.modalData.dueDate || null,
-      };
-      this.taskService.updateTask(editing.id, dto).subscribe({
+    if (result.mode === 'update' && editing && result.updateDto) {
+      this.taskService.updateTask(editing.id, result.updateDto).subscribe({
         next: () => {
           this.toast.success('Task updated');
           this.closeModal();
@@ -600,17 +408,8 @@ export class DashboardComponent implements OnInit {
           this.saving.set(false);
         },
       });
-    } else {
-      const dto: CreateTaskDto = {
-        title: this.modalData.title,
-        description: this.modalData.description,
-        status: this.modalData.status as TaskStatus,
-        priority: this.modalData.priority as TaskPriority,
-        categoryId: this.modalData.categoryId,
-        dueDate: this.modalData.dueDate || null,
-        organizationId: this.modalData.organizationId ?? undefined,
-      };
-      this.taskService.createTask(dto).subscribe({
+    } else if (result.mode === 'create' && result.createDto) {
+      this.taskService.createTask(result.createDto).subscribe({
         next: () => {
           this.toast.success('Task created');
           this.closeModal();
@@ -649,14 +448,5 @@ export class DashboardComponent implements OnInit {
         this.saving.set(false);
       },
     });
-  }
-
-  formatDate(dateStr: string): string {
-    const d = new Date(dateStr);
-    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-  }
-
-  isOverdue(dateStr: string): boolean {
-    return new Date(dateStr) < new Date();
   }
 }

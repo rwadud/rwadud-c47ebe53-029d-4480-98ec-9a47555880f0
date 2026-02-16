@@ -5,6 +5,7 @@ import { OrganizationService } from '../../services/organization.service';
 import { AuthService } from '../../services/auth.service';
 import { ToastService } from '../../services/toast.service';
 import { IOrganization } from '@stms/data';
+import { ConfirmDialogComponent } from '../../shared/confirm-dialog.component';
 
 interface OrgTreeNode {
   parent: IOrganization;
@@ -14,7 +15,7 @@ interface OrgTreeNode {
 @Component({
   selector: 'app-organizations',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ConfirmDialogComponent],
   template: `
     <div class="orgs-page">
       <div class="page-header">
@@ -146,22 +147,15 @@ interface OrgTreeNode {
 
     <!-- Delete Confirmation Modal -->
     @if (deleteTarget()) {
-      <div class="modal-backdrop" (click)="cancelDelete()">
-        <div class="modal" (click)="$event.stopPropagation()" style="max-width: 400px">
-          <h3 style="margin: 0 0 8px; font-size: 18px; font-weight: 700">Delete Organization</h3>
-          <p class="text-secondary text-sm" style="margin: 0 0 20px">
-            Are you sure you want to delete <strong>{{ deleteTarget()!.name }}</strong>?
-            This will fail if the org still has users, tasks, or categories.
-          </p>
-          <div class="flex gap-2 justify-between">
-            <button class="btn btn-secondary" (click)="cancelDelete()">Cancel</button>
-            <button class="btn btn-danger" (click)="doDelete()" [disabled]="saving()">
-              @if (saving()) { <span class="spinner"></span> }
-              Delete
-            </button>
-          </div>
-        </div>
-      </div>
+      <app-confirm-dialog
+        title="Delete Organization"
+        [message]="'Are you sure you want to delete <strong>' + deleteTarget()!.name + '</strong>? This will fail if the org still has users, tasks, or categories.'"
+        confirmLabel="Delete"
+        [destructive]="true"
+        [loading]="saving()"
+        (confirmed)="doDelete()"
+        (cancelled)="cancelDelete()"
+      />
     }
   `,
   styles: [`
