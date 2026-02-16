@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Task } from '../entities/task.entity';
-import { Organization } from '../entities/organization.entity';
+import { Task } from '../tasks/task.entity';
+import { Organization } from '../organizations/organization.entity';
 import { TasksService } from './tasks.service';
 import { TasksController } from './tasks.controller';
-import { OrgScopeService } from '../guards/org-scope.service';
+import { OrgScopeService } from '../common/services/org-scope.service';
 import { AuditLogModule } from '../audit-log/audit-log.module';
 
 @Module({

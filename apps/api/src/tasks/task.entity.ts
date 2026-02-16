@@ -3,9 +3,9 @@ import {
   CreateDateColumn, UpdateDateColumn,
 } from 'typeorm';
 import { TaskStatus, TaskPriority } from '@stms/data';
-import { User } from './user.entity';
-import { Organization } from './organization.entity';
-import { Category } from './category.entity';
+import { User } from '../users/user.entity';
+import { Organization } from '../organizations/organization.entity';
+import { Category } from '../categories/category.entity';
 
 @Entity('tasks')
 export class Task {

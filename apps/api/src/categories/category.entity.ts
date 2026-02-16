@@ -1,6 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
-import { User } from './user.entity';
-import { Organization } from './organization.entity';
+import { User } from '../users/user.entity';
+import { Organization } from '../organizations/organization.entity';
 
 @Entity('categories')
 export class Category {

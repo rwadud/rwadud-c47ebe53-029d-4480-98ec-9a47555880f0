@@ -5,7 +5,7 @@ import { OrganizationService } from '../../services/organization.service';
 import { AuthService } from '../../services/auth.service';
 import { ToastService } from '../../services/toast.service';
 import { IOrganization } from '@stms/data';
-import { ConfirmDialogComponent } from '../../shared/confirm-dialog.component';
+import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 
 interface OrgTreeNode {
   parent: IOrganization;

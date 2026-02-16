@@ -4,7 +4,7 @@ import { RouterModule } from '@angular/router';
 import { AuthService } from './services/auth.service';
 import { ThemeService } from './services/theme.service';
 import { ToastService } from './services/toast.service';
-import { Permission } from '@stms/auth';
+import { Permission } from '@stms/data';
 
 @Component({
   selector: 'app-root',

@@ -3,11 +3,8 @@ import {
   Body, Param, Query, Request, UseGuards, ParseIntPipe,
 } from '@nestjs/common';
 import { TasksService } from './tasks.service';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { RbacGuard } from '../guards/rbac.guard';
-import { RequirePermissions } from '../guards/permissions.decorator';
-import { Permission } from '@stms/auth';
-import { CreateTaskDto, UpdateTaskDto, ReorderTaskDto, TaskStatus } from '@stms/data';
+import { JwtAuthGuard, RbacGuard, RequirePermissions } from '@stms/auth';
+import { Permission, CreateTaskDto, UpdateTaskDto, ReorderTaskDto, TaskStatus } from '@stms/data';
 
 @Controller('tasks')
 @UseGuards(JwtAuthGuard, RbacGuard)

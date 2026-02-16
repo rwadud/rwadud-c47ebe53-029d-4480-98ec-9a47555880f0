@@ -1,10 +1,7 @@
 import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards, Request } from '@nestjs/common';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { RbacGuard } from '../guards/rbac.guard';
-import { RequirePermissions } from '../guards/permissions.decorator';
-import { Permission } from '@stms/auth';
+import { JwtAuthGuard, RbacGuard, RequirePermissions } from '@stms/auth';
+import { Permission, CreateUserDto, UpdateUserDto } from '@stms/data';
 import { UsersService } from './users.service';
-import { CreateUserDto, UpdateUserDto } from '@stms/data';
 
 @Controller('users')
 @UseGuards(JwtAuthGuard, RbacGuard)

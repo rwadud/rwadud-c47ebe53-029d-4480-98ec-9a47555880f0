@@ -1,10 +1,10 @@
 import { DataSource } from 'typeorm';
 import * as bcrypt from 'bcryptjs';
-import { Organization } from './entities/organization.entity';
-import { User } from './entities/user.entity';
-import { Task } from './entities/task.entity';
-import { Category } from './entities/category.entity';
-import { AuditLog } from './entities/audit-log.entity';
+import { Organization } from '../organizations/organization.entity';
+import { User } from '../users/user.entity';
+import { Task } from '../tasks/task.entity';
+import { Category } from '../categories/category.entity';
+import { AuditLog } from '../audit-log/audit-log.entity';
 import { Role, TaskStatus, TaskPriority } from '@stms/data';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -128,7 +128,7 @@ async function seed() {
       createdById: sarah.id,
       organizationId: hq.id,
       position: 1,
-      dueDate: pastDate(2), // overdue
+      dueDate: pastDate(2),
     },
     {
       title: 'Office Supply Inventory',
@@ -194,7 +194,7 @@ async function seed() {
       createdById: sarah.id,
       organizationId: hq.id,
       position: 7,
-      dueDate: pastDate(1), // overdue
+      dueDate: pastDate(1),
     },
   ];
 

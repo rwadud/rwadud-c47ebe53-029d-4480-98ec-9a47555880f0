@@ -3,11 +3,8 @@ import {
   Body, Param, Request, UseGuards, ParseIntPipe,
 } from '@nestjs/common';
 import { CategoriesService } from './categories.service';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { RbacGuard } from '../guards/rbac.guard';
-import { RequirePermissions } from '../guards/permissions.decorator';
-import { Permission } from '@stms/auth';
-import { CreateCategoryDto, UpdateCategoryDto } from '@stms/data';
+import { JwtAuthGuard, RbacGuard, RequirePermissions } from '@stms/auth';
+import { Permission, CreateCategoryDto, UpdateCategoryDto } from '@stms/data';
 
 @Controller('categories')
 @UseGuards(JwtAuthGuard, RbacGuard)

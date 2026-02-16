@@ -5,7 +5,7 @@ import { CategoryService } from '../../services/category.service';
 import { AuthService } from '../../services/auth.service';
 import { ToastService } from '../../services/toast.service';
 import { ICategory, CreateCategoryDto } from '@stms/data';
-import { Permission } from '@stms/auth';
+import { Permission } from '@stms/data';
 
 @Component({
   selector: 'app-categories',

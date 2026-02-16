@@ -1,9 +1,9 @@
 import { Injectable, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, In } from 'typeorm';
-import { Category } from '../entities/category.entity';
+import { Category } from './category.entity';
 import { CreateCategoryDto, UpdateCategoryDto, ITokenPayload, AuditAction, AuditResource } from '@stms/data';
-import { OrgScopeService } from '../guards/org-scope.service';
+import { OrgScopeService } from '../common/services/org-scope.service';
 import { AuditLogService } from '../audit-log/audit-log.service';
 
 @Injectable()

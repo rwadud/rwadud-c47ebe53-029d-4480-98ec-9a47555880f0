@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from '../auth/auth.module';
@@ -7,11 +7,12 @@ import { CategoriesModule } from '../categories/categories.module';
 import { AuditLogModule } from '../audit-log/audit-log.module';
 import { OrganizationsModule } from '../organizations/organizations.module';
 import { UsersModule } from '../users/users.module';
-import { Organization } from '../entities/organization.entity';
-import { User } from '../entities/user.entity';
-import { Task } from '../entities/task.entity';
-import { Category } from '../entities/category.entity';
-import { AuditLog } from '../entities/audit-log.entity';
+import { Organization } from '../organizations/organization.entity';
+import { User } from '../users/user.entity';
+import { Task } from '../tasks/task.entity';
+import { Category } from '../categories/category.entity';
+import { AuditLog } from '../audit-log/audit-log.entity';
+import { CsrfMiddleware } from '../common/middleware/csrf.middleware';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { AuditLog } from '../entities/audit-log.entity';
       entities: [Organization, User, Task, Category, AuditLog],
       synchronize: true,
     }),
+    ConfigModule.forRoot(),
     AuthModule,
     TasksModule,
     CategoriesModule,
@@ -29,4 +31,8 @@ import { AuditLog } from '../entities/audit-log.entity';
     UsersModule,
   ],
 })
-export class AppModule { }
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(CsrfMiddleware).forRoutes('*');
+  }
+}

@@ -1,10 +1,10 @@
 import { Injectable, ForbiddenException, NotFoundException, ConflictException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Organization } from '../entities/organization.entity';
-import { User } from '../entities/user.entity';
-import { Task } from '../entities/task.entity';
-import { Category } from '../entities/category.entity';
+import { Organization } from './organization.entity';
+import { User } from '../users/user.entity';
+import { Task } from '../tasks/task.entity';
+import { Category } from '../categories/category.entity';
 import { CreateOrgDto, UpdateOrgDto, ITokenPayload } from '@stms/data';
 
 @Injectable()

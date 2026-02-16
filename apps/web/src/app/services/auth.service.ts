@@ -2,7 +2,7 @@ import { Injectable, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { ILoginResponse, IUser, ITokenPayload, Role } from '@stms/data';
-import { Permission, hasPermission } from '@stms/auth';
+import { Permission, hasPermission } from '@stms/data';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {

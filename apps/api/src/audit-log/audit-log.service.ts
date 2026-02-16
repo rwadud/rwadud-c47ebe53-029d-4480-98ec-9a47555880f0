@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, In } from 'typeorm';
-import { AuditLog } from '../entities/audit-log.entity';
+import { AuditLog } from './audit-log.entity';
 import { AuditAction, AuditResource, ITokenPayload } from '@stms/data';
-import { OrgScopeService } from '../guards/org-scope.service';
+import { OrgScopeService } from '../common/services/org-scope.service';
 
 @Injectable()
 export class AuditLogService {

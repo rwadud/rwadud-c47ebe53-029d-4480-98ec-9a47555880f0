@@ -1,17 +1,12 @@
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app/app.module';
+import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import * as fs from 'fs';
 import * as path from 'path';
-import * as crypto from 'crypto';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const cookieParser = require('cookie-parser');
-
-const CSRF_COOKIE = 'XSRF-TOKEN';
-const CSRF_HEADER = 'x-xsrf-token';
-const SAFE_METHODS = new Set(['GET', 'HEAD', 'OPTIONS']);
-const CSRF_EXEMPT = ['/api/auth/login'];
 
 async function bootstrap() {
   // Ensure data directory exists
@@ -26,38 +21,13 @@ async function bootstrap() {
   // Parse cookies first
   app.use(cookieParser());
 
-  // CSRF double-submit cookie protection
-  // Sets XSRF-TOKEN cookie on every response.
-  // For POST/PUT/DELETE/PATCH, validates X-XSRF-TOKEN header matches the cookie.
-  // Angular's HttpClient handles this automatically.
-  app.use((req: any, res: any, next: any) => {
-    let token = req.cookies?.[CSRF_COOKIE];
-    if (!token) {
-      token = crypto.randomBytes(32).toString('hex');
-    }
-    res.cookie(CSRF_COOKIE, token, {
-      httpOnly: false,
-      sameSite: 'strict',
-      secure: process.env.NODE_ENV === 'production',
-      path: '/',
-    });
-
-    if (SAFE_METHODS.has(req.method) || CSRF_EXEMPT.includes(req.path)) {
-      return next();
-    }
-
-    const headerToken = req.headers[CSRF_HEADER];
-    if (!headerToken || headerToken !== token) {
-      return res.status(403).json({
-        message: 'Invalid or missing CSRF token',
-        error: 'Forbidden',
-        statusCode: 403,
-      });
-    }
-    next();
-  });
+  // CSRF protection is handled by CsrfMiddleware in common/middleware/
+  // It is applied via AppModule middleware consumer
 
   app.setGlobalPrefix('api');
+
+  // Global exception filter for consistent error responses
+  app.useGlobalFilters(new HttpExceptionFilter());
 
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
 

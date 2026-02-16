@@ -1,5 +1,4 @@
-import { Role } from '@stms/data';
-import { Permission, hasPermission, PERMISSION_MATRIX } from './permissions';
+import { Role, Permission, hasPermission, PERMISSION_MATRIX } from '@stms/data';
 
 /**
  * RBAC Permission Matrix Tests

@@ -1,11 +1,8 @@
 import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards, Request } from '@nestjs/common';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { RbacGuard } from '../guards/rbac.guard';
-import { RequirePermissions } from '../guards/permissions.decorator';
-import { Permission } from '@stms/auth';
-import { OrgScopeService } from '../guards/org-scope.service';
+import { JwtAuthGuard, RbacGuard, RequirePermissions } from '@stms/auth';
+import { Permission, CreateOrgDto, UpdateOrgDto } from '@stms/data';
+import { OrgScopeService } from '../common/services/org-scope.service';
 import { OrganizationsService } from './organizations.service';
-import { CreateOrgDto, UpdateOrgDto } from '@stms/data';
 
 @Controller('organizations')
 @UseGuards(JwtAuthGuard)

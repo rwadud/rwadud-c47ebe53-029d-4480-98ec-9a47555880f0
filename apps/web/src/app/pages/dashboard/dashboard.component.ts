@@ -8,10 +8,10 @@ import { CategoryService } from '../../services/category.service';
 import { OrganizationService } from '../../services/organization.service';
 import { ToastService } from '../../services/toast.service';
 import { ITask, ICategory, IOrganization, TaskStatus, TaskPriority } from '@stms/data';
-import { Permission } from '@stms/auth';
-import { TaskCardComponent } from '../../shared/task-card.component';
-import { TaskFormModalComponent, TaskFormResult } from '../../shared/task-form-modal.component';
-import { ConfirmDialogComponent } from '../../shared/confirm-dialog.component';
+import { Permission } from '@stms/data';
+import { TaskCardComponent } from '../../components/task-card/task-card.component';
+import { TaskFormModalComponent, TaskFormResult } from '../../components/task-modal/task-modal.component';
+import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-dashboard',

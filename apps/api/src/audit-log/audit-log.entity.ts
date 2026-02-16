@@ -1,7 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, CreateDateColumn } from 'typeorm';
 import { AuditAction, AuditResource } from '@stms/data';
-import { User } from './user.entity';
-import { Organization } from './organization.entity';
+import { User } from '../users/user.entity';
+import { Organization } from '../organizations/organization.entity';
 
 @Entity('audit_logs')
 export class AuditLog {

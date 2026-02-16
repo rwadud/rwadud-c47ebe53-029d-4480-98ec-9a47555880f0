@@ -1,13 +1,13 @@
 import { Injectable, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, In } from 'typeorm';
-import { Task } from '../entities/task.entity';
+import { Task } from './task.entity';
 import {
   CreateTaskDto, UpdateTaskDto, ReorderTaskDto,
   ITokenPayload, AuditAction, AuditResource, TaskStatus,
 } from '@stms/data';
-import { Permission, hasPermission } from '@stms/auth';
-import { OrgScopeService } from '../guards/org-scope.service';
+import { Permission, hasPermission } from '@stms/data';
+import { OrgScopeService } from '../common/services/org-scope.service';
 import { AuditLogService } from '../audit-log/audit-log.service';
 
 @Injectable()

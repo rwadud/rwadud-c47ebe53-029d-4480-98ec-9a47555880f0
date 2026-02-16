@@ -2,9 +2,9 @@ import { Injectable, ForbiddenException, NotFoundException, ConflictException } 
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, In } from 'typeorm';
 import * as bcrypt from 'bcryptjs';
-import { User } from '../entities/user.entity';
+import { User } from './user.entity';
 import { CreateUserDto, UpdateUserDto, ITokenPayload, AuditAction, AuditResource, Role } from '@stms/data';
-import { OrgScopeService } from '../guards/org-scope.service';
+import { OrgScopeService } from '../common/services/org-scope.service';
 import { AuditLogService } from '../audit-log/audit-log.service';
 
 @Injectable()
