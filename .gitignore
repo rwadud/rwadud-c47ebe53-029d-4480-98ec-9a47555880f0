@@ -44,5 +44,5 @@ Thumbs.db
 .angular
 
 # STMS
-data/
+data/*.sqlite
 .env
