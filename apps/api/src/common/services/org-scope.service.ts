@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Organization } from '../../organizations/organization.entity';
-import { ITokenPayload } from '@stms/data';
+import { TokenPayload } from '@stms/data';
 
 @Injectable()
 export class OrgScopeService {
@@ -16,7 +16,7 @@ export class OrgScopeService {
    * - Parent org users see all org IDs (parent + all children)
    * - Child org users see only their own org ID
    */
-  async getVisibleOrgIds(user: ITokenPayload): Promise<number[]> {
+  async getVisibleOrgIds(user: TokenPayload): Promise<number[]> {
     if (user.isParentOrg) {
       const allOrgs = await this.orgRepo.find();
       return allOrgs
@@ -34,7 +34,7 @@ export class OrgScopeService {
     return this.orgRepo.findOne({ where: { id: orgId } });
   }
 
-  async getVisibleOrgs(user: ITokenPayload): Promise<Organization[]> {
+  async getVisibleOrgs(user: TokenPayload): Promise<Organization[]> {
     if (user.isParentOrg) {
       const allOrgs = await this.orgRepo.find();
       return allOrgs.filter(

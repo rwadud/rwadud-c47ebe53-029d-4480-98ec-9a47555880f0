@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { IUser, CreateUserDto, UpdateUserDto } from '@stms/data';
+import { User, CreateUserDto, UpdateUserDto } from '@stms/data';
 
 @Injectable({ providedIn: 'root' })
 export class UserService {
@@ -9,15 +9,15 @@ export class UserService {
   constructor(private http: HttpClient) { }
 
   getUsers() {
-    return this.http.get<Omit<IUser, 'organization'>[]>(this.apiUrl);
+    return this.http.get<Omit<User, 'organization'>[]>(this.apiUrl);
   }
 
   createUser(dto: CreateUserDto) {
-    return this.http.post<IUser>(this.apiUrl, dto);
+    return this.http.post<User>(this.apiUrl, dto);
   }
 
   updateUser(id: number, dto: UpdateUserDto) {
-    return this.http.put<IUser>(`${this.apiUrl}/${id}`, dto);
+    return this.http.put<User>(`${this.apiUrl}/${id}`, dto);
   }
 
   deleteUser(id: number) {

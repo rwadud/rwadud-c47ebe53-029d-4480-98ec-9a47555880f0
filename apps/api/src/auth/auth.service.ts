@@ -4,7 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcryptjs';
 import { User } from '../users/user.entity';
-import { ILoginResponse, ITokenPayload } from '@stms/data';
+import { LoginResponse, TokenPayload } from '@stms/data';
 
 @Injectable()
 export class AuthService {
@@ -29,10 +29,10 @@ export class AuthService {
     return user;
   }
 
-  async login(email: string, password: string): Promise<ILoginResponse> {
+  async login(email: string, password: string): Promise<LoginResponse> {
     const user = await this.validateUser(email, password);
 
-    const payload: ITokenPayload = {
+    const payload: TokenPayload = {
       sub: user.id,
       email: user.email,
       role: user.role,

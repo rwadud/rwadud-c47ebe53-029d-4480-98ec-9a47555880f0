@@ -4,7 +4,7 @@ import { Repository, In } from 'typeorm';
 import { Task } from './task.entity';
 import {
   CreateTaskDto, UpdateTaskDto, ReorderTaskDto,
-  ITokenPayload, AuditAction, AuditResource, TaskStatus,
+  TokenPayload, AuditAction, AuditResource, TaskStatus,
 } from '@stms/data';
 import { Permission, hasPermission } from '@stms/data';
 import { OrgScopeService } from '../common/services/org-scope.service';
@@ -19,7 +19,7 @@ export class TasksService {
     private readonly auditLogService: AuditLogService,
   ) { }
 
-  async create(dto: CreateTaskDto, user: ITokenPayload) {
+  async create(dto: CreateTaskDto, user: TokenPayload) {
     // Determine target org: parent org users can assign to child orgs
     let targetOrgId = user.organizationId;
     if (dto.organizationId && user.isParentOrg) {
@@ -60,7 +60,7 @@ export class TasksService {
     });
   }
 
-  async findAll(user: ITokenPayload, query?: {
+  async findAll(user: TokenPayload, query?: {
     status?: TaskStatus;
     priority?: string;
     categoryId?: string;
@@ -105,7 +105,7 @@ export class TasksService {
     });
   }
 
-  async update(id: number, dto: UpdateTaskDto, user: ITokenPayload) {
+  async update(id: number, dto: UpdateTaskDto, user: TokenPayload) {
     const task = await this.taskRepo.findOne({ where: { id }, relations: ['organization'] });
     if (!task) throw new NotFoundException('Task not found');
 
@@ -148,7 +148,7 @@ export class TasksService {
     });
   }
 
-  async delete(id: number, user: ITokenPayload) {
+  async delete(id: number, user: TokenPayload) {
     const task = await this.taskRepo.findOne({ where: { id } });
     if (!task) throw new NotFoundException('Task not found');
 
@@ -173,7 +173,7 @@ export class TasksService {
     return { deleted: true };
   }
 
-  async reorder(items: ReorderTaskDto[], user: ITokenPayload) {
+  async reorder(items: ReorderTaskDto[], user: TokenPayload) {
     const orgIds = await this.orgScopeService.getVisibleOrgIds(user);
 
     for (const item of items) {

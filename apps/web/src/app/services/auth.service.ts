@@ -1,7 +1,7 @@
 import { Injectable, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { ILoginResponse, IUser, ITokenPayload, Role } from '@stms/data';
+import { LoginResponse, User, TokenPayload, Role } from '@stms/data';
 import { Permission, hasPermission } from '@stms/data';
 
 @Injectable({ providedIn: 'root' })
@@ -9,7 +9,7 @@ export class AuthService {
   private readonly tokenKey = 'stms_token';
   private readonly userKey = 'stms_user';
 
-  currentUser = signal<(IUser & { organization: { id: number; name: string; parentId: number | null } }) | null>(null);
+  currentUser = signal<(User & { organization: { id: number; name: string; parentId: number | null } }) | null>(null);
   isLoggedIn = computed(() => !!this.currentUser());
 
   constructor(private http: HttpClient, private router: Router) {
@@ -29,10 +29,10 @@ export class AuthService {
   }
 
   login(email: string, password: string) {
-    return this.http.post<ILoginResponse>('/api/auth/login', { email, password });
+    return this.http.post<LoginResponse>('/api/auth/login', { email, password });
   }
 
-  handleLoginSuccess(response: ILoginResponse) {
+  handleLoginSuccess(response: LoginResponse) {
     localStorage.setItem(this.tokenKey, response.accessToken);
     localStorage.setItem(this.userKey, JSON.stringify(response.user));
     this.currentUser.set(response.user as any);

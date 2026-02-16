@@ -1,7 +1,7 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AuditLogService } from '../../services/audit-log.service';
-import { IAuditLog } from '@stms/data';
+import { AuditLog } from '@stms/data';
 
 @Component({
   selector: 'app-audit-log',
@@ -100,14 +100,14 @@ import { IAuditLog } from '@stms/data';
   `],
 })
 export class AuditLogComponent implements OnInit {
-  logs = signal<IAuditLog[]>([]);
+  logs = signal<AuditLog[]>([]);
   loading = signal(true);
 
   constructor(private auditLogService: AuditLogService) { }
 
   ngOnInit() {
     this.auditLogService.getAuditLogs().subscribe({
-      next: (data: IAuditLog[]) => {
+      next: (data: AuditLog[]) => {
         this.logs.set(data);
         this.loading.set(false);
       },

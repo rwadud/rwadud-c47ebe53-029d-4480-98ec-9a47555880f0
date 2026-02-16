@@ -5,7 +5,7 @@ import { Organization } from './organization.entity';
 import { User } from '../users/user.entity';
 import { Task } from '../tasks/task.entity';
 import { Category } from '../categories/category.entity';
-import { CreateOrgDto, UpdateOrgDto, ITokenPayload } from '@stms/data';
+import { CreateOrgDto, UpdateOrgDto, TokenPayload } from '@stms/data';
 
 @Injectable()
 export class OrganizationsService {
@@ -20,7 +20,7 @@ export class OrganizationsService {
     private readonly categoryRepo: Repository<Category>,
   ) { }
 
-  async findAll(user: ITokenPayload) {
+  async findAll(user: TokenPayload) {
     if (user.isParentOrg) {
       return this.orgRepo.find({
         where: [
@@ -37,7 +37,7 @@ export class OrganizationsService {
     });
   }
 
-  async create(dto: CreateOrgDto, actor: ITokenPayload) {
+  async create(dto: CreateOrgDto, actor: TokenPayload) {
     if (!actor.isParentOrg) {
       throw new ForbiddenException('Only parent org owners can create organizations');
     }
@@ -50,7 +50,7 @@ export class OrganizationsService {
     return this.orgRepo.save(org);
   }
 
-  async update(id: number, dto: UpdateOrgDto, actor: ITokenPayload) {
+  async update(id: number, dto: UpdateOrgDto, actor: TokenPayload) {
     if (!actor.isParentOrg) {
       throw new ForbiddenException('Only parent org owners can manage organizations');
     }
@@ -67,7 +67,7 @@ export class OrganizationsService {
     return this.orgRepo.save(org);
   }
 
-  async delete(id: number, actor: ITokenPayload) {
+  async delete(id: number, actor: TokenPayload) {
     if (!actor.isParentOrg) {
       throw new ForbiddenException('Only parent org owners can manage organizations');
     }

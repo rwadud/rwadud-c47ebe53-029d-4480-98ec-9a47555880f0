@@ -1,7 +1,7 @@
 import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ITask, ICategory, IOrganization, TaskStatus, TaskPriority, CreateTaskDto, UpdateTaskDto } from '@stms/data';
+import { Task, Category, Organization, TaskStatus, TaskPriority, CreateTaskDto, UpdateTaskDto } from '@stms/data';
 
 export interface TaskFormResult {
   mode: 'create' | 'update';
@@ -90,9 +90,9 @@ export interface TaskFormResult {
   `,
 })
 export class TaskFormModalComponent implements OnInit {
-  @Input() task: ITask | null = null;
-  @Input() categories: ICategory[] = [];
-  @Input() organizations: IOrganization[] = [];
+  @Input() task: Task | null = null;
+  @Input() categories: Category[] = [];
+  @Input() organizations: Organization[] = [];
   @Input() saving = false;
   @Input() defaultOrganizationId: number | null = null;
 

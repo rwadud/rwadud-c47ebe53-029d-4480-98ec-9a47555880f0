@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, In } from 'typeorm';
 import * as bcrypt from 'bcryptjs';
 import { User } from './user.entity';
-import { CreateUserDto, UpdateUserDto, ITokenPayload, AuditAction, AuditResource, Role } from '@stms/data';
+import { CreateUserDto, UpdateUserDto, TokenPayload, AuditAction, AuditResource, Role } from '@stms/data';
 import { OrgScopeService } from '../common/services/org-scope.service';
 import { AuditLogService } from '../audit-log/audit-log.service';
 
@@ -16,7 +16,7 @@ export class UsersService {
     private readonly auditLogService: AuditLogService,
   ) { }
 
-  async findAll(user: ITokenPayload) {
+  async findAll(user: TokenPayload) {
     const orgIds = await this.orgScopeService.getVisibleOrgIds(user);
     const users = await this.userRepo.find({
       where: { organizationId: In(orgIds) },
@@ -27,7 +27,7 @@ export class UsersService {
     return users.map(({ password, ...u }) => u);
   }
 
-  async create(dto: CreateUserDto, actor: ITokenPayload) {
+  async create(dto: CreateUserDto, actor: TokenPayload) {
     // Verify target org is visible
     const orgIds = await this.orgScopeService.getVisibleOrgIds(actor);
     if (!orgIds.includes(dto.organizationId)) {
@@ -65,7 +65,7 @@ export class UsersService {
     return result;
   }
 
-  async update(id: number, dto: UpdateUserDto, actor: ITokenPayload) {
+  async update(id: number, dto: UpdateUserDto, actor: TokenPayload) {
     const user = await this.userRepo.findOne({ where: { id }, relations: ['organization'] });
     if (!user) throw new NotFoundException('User not found');
 
@@ -114,7 +114,7 @@ export class UsersService {
     return result;
   }
 
-  async delete(id: number, actor: ITokenPayload) {
+  async delete(id: number, actor: TokenPayload) {
     const user = await this.userRepo.findOne({ where: { id } });
     if (!user) throw new NotFoundException('User not found');
 

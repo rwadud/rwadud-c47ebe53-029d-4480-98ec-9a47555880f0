@@ -2,7 +2,7 @@ import { Injectable, ForbiddenException, NotFoundException } from '@nestjs/commo
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, In } from 'typeorm';
 import { Category } from './category.entity';
-import { CreateCategoryDto, UpdateCategoryDto, ITokenPayload, AuditAction, AuditResource } from '@stms/data';
+import { CreateCategoryDto, UpdateCategoryDto, TokenPayload, AuditAction, AuditResource } from '@stms/data';
 import { OrgScopeService } from '../common/services/org-scope.service';
 import { AuditLogService } from '../audit-log/audit-log.service';
 
@@ -15,7 +15,7 @@ export class CategoriesService {
     private readonly auditLogService: AuditLogService,
   ) { }
 
-  async create(dto: CreateCategoryDto, user: ITokenPayload) {
+  async create(dto: CreateCategoryDto, user: TokenPayload) {
     const category = this.categoryRepo.create({
       name: dto.name,
       organizationId: user.organizationId,
@@ -31,7 +31,7 @@ export class CategoriesService {
     return saved;
   }
 
-  async findAll(user: ITokenPayload) {
+  async findAll(user: TokenPayload) {
     const orgIds = await this.orgScopeService.getVisibleOrgIds(user);
 
     // Also include parent org's categories so child org users see shared categories
@@ -49,7 +49,7 @@ export class CategoriesService {
     });
   }
 
-  async update(id: number, dto: UpdateCategoryDto, user: ITokenPayload) {
+  async update(id: number, dto: UpdateCategoryDto, user: TokenPayload) {
     const category = await this.categoryRepo.findOne({ where: { id } });
     if (!category) throw new NotFoundException('Category not found');
 
@@ -73,7 +73,7 @@ export class CategoriesService {
     return saved;
   }
 
-  async delete(id: number, user: ITokenPayload) {
+  async delete(id: number, user: TokenPayload) {
     const category = await this.categoryRepo.findOne({ where: { id } });
     if (!category) throw new NotFoundException('Category not found');
 

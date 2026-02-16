@@ -4,12 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { OrganizationService } from '../../services/organization.service';
 import { AuthService } from '../../services/auth.service';
 import { ToastService } from '../../services/toast.service';
-import { IOrganization } from '@stms/data';
+import { Organization } from '@stms/data';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 
 interface OrgTreeNode {
-  parent: IOrganization;
-  children: IOrganization[];
+  parent: Organization;
+  children: Organization[];
 }
 
 @Component({
@@ -359,12 +359,12 @@ interface OrgTreeNode {
   `],
 })
 export class OrganizationsComponent implements OnInit {
-  organizations = signal<IOrganization[]>([]);
+  organizations = signal<Organization[]>([]);
   loading = signal(true);
   saving = signal(false);
   showModal = signal(false);
-  editingOrg = signal<IOrganization | null>(null);
-  deleteTarget = signal<IOrganization | null>(null);
+  editingOrg = signal<Organization | null>(null);
+  deleteTarget = signal<Organization | null>(null);
   modalName = '';
   createAsParent = false;
   nameError = '';
@@ -412,7 +412,7 @@ export class OrganizationsComponent implements OnInit {
     this.showModal.set(true);
   }
 
-  openEditModal(org: IOrganization) {
+  openEditModal(org: Organization) {
     this.editingOrg.set(org);
     this.modalName = org.name;
     this.nameError = '';
@@ -466,7 +466,7 @@ export class OrganizationsComponent implements OnInit {
     }
   }
 
-  confirmDelete(org: IOrganization) {
+  confirmDelete(org: Organization) {
     this.deleteTarget.set(org);
   }
 

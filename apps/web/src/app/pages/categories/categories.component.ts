@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { CategoryService } from '../../services/category.service';
 import { AuthService } from '../../services/auth.service';
 import { ToastService } from '../../services/toast.service';
-import { ICategory, CreateCategoryDto } from '@stms/data';
+import { Category, CreateCategoryDto } from '@stms/data';
 import { Permission } from '@stms/data';
 
 @Component({
@@ -76,7 +76,7 @@ import { Permission } from '@stms/data';
   `],
 })
 export class CategoriesComponent implements OnInit {
-  categories = signal<ICategory[]>([]);
+  categories = signal<Category[]>([]);
   loading = signal(true);
   saving = signal(false);
   editingId = signal(0);
@@ -122,7 +122,7 @@ export class CategoriesComponent implements OnInit {
     });
   }
 
-  startEdit(cat: ICategory) {
+  startEdit(cat: Category) {
     this.editingId.set(cat.id);
     this.editName = cat.name;
   }

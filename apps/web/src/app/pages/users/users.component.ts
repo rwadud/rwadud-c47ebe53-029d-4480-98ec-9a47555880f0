@@ -5,7 +5,7 @@ import { UserService } from '../../services/user.service';
 import { OrganizationService } from '../../services/organization.service';
 import { AuthService } from '../../services/auth.service';
 import { ToastService } from '../../services/toast.service';
-import { IUser, IOrganization, CreateUserDto } from '@stms/data';
+import { User, Organization, CreateUserDto } from '@stms/data';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 
 @Component({
@@ -193,13 +193,13 @@ import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-
   `],
 })
 export class UsersComponent implements OnInit {
-  users = signal<(IUser & { organization?: { id: number; name: string } })[]>([]);
-  organizations = signal<IOrganization[]>([]);
+  users = signal<(User & { organization?: { id: number; name: string } })[]>([]);
+  organizations = signal<Organization[]>([]);
   loading = signal(true);
   saving = signal(false);
   showModal = signal(false);
-  editingUser = signal<IUser | null>(null);
-  deleteTarget = signal<IUser | null>(null);
+  editingUser = signal<User | null>(null);
+  deleteTarget = signal<User | null>(null);
 
   modalData = {
     email: '',
@@ -241,7 +241,7 @@ export class UsersComponent implements OnInit {
     this.showModal.set(true);
   }
 
-  openEditModal(user: IUser) {
+  openEditModal(user: User) {
     this.editingUser.set(user);
     this.modalData = {
       email: user.email,
@@ -311,7 +311,7 @@ export class UsersComponent implements OnInit {
     }
   }
 
-  confirmDelete(user: IUser) {
+  confirmDelete(user: User) {
     this.deleteTarget.set(user);
   }
 

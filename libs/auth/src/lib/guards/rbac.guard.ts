@@ -1,7 +1,7 @@
 import { Injectable, CanActivate, ExecutionContext, ForbiddenException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Permission, hasPermission } from '@stms/data';
-import { ITokenPayload } from '@stms/data';
+import { TokenPayload } from '@stms/data';
 import { PERMISSIONS_KEY } from '../decorators/roles.decorator';
 
 @Injectable()
@@ -19,7 +19,7 @@ export class RbacGuard implements CanActivate {
     }
 
     const request = context.switchToHttp().getRequest();
-    const user: ITokenPayload = request.user;
+    const user: TokenPayload = request.user;
 
     if (!user) {
       throw new ForbiddenException('No user context');

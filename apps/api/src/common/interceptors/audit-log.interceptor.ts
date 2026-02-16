@@ -4,7 +4,7 @@ import {
 import { Reflector } from '@nestjs/core';
 import { Observable, tap } from 'rxjs';
 import { AUDITABLE_KEY, AuditableMetadata } from '@stms/auth';
-import { ITokenPayload } from '@stms/data';
+import { TokenPayload } from '@stms/data';
 import { AuditLogService } from '../../audit-log/audit-log.service';
 
 /**
@@ -31,7 +31,7 @@ export class AuditLogInterceptor implements NestInterceptor {
     }
 
     const request = context.switchToHttp().getRequest();
-    const user: ITokenPayload = request.user;
+    const user: TokenPayload = request.user;
 
     return next.handle().pipe(
       tap(async (result) => {

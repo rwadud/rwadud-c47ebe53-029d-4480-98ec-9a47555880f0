@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { IOrganization, CreateOrgDto, UpdateOrgDto } from '@stms/data';
+import { Organization, CreateOrgDto, UpdateOrgDto } from '@stms/data';
 
 @Injectable({ providedIn: 'root' })
 export class OrganizationService {
@@ -9,15 +9,15 @@ export class OrganizationService {
   constructor(private http: HttpClient) { }
 
   getOrganizations() {
-    return this.http.get<IOrganization[]>(this.apiUrl);
+    return this.http.get<Organization[]>(this.apiUrl);
   }
 
   createOrganization(dto: CreateOrgDto) {
-    return this.http.post<IOrganization>(this.apiUrl, dto);
+    return this.http.post<Organization>(this.apiUrl, dto);
   }
 
   updateOrganization(id: number, dto: UpdateOrgDto) {
-    return this.http.put<IOrganization>(`${this.apiUrl}/${id}`, dto);
+    return this.http.put<Organization>(`${this.apiUrl}/${id}`, dto);
   }
 
   deleteOrganization(id: number) {

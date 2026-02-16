@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { IAuditLog } from '@stms/data';
+import { AuditLog } from '@stms/data';
 
 @Injectable({ providedIn: 'root' })
 export class AuditLogService {
@@ -9,6 +9,6 @@ export class AuditLogService {
   constructor(private http: HttpClient) { }
 
   getAuditLogs() {
-    return this.http.get<IAuditLog[]>(this.apiUrl);
+    return this.http.get<AuditLog[]>(this.apiUrl);
   }
 }

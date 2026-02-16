@@ -7,7 +7,7 @@ import { TaskService } from '../../services/task.service';
 import { CategoryService } from '../../services/category.service';
 import { OrganizationService } from '../../services/organization.service';
 import { ToastService } from '../../services/toast.service';
-import { ITask, ICategory, IOrganization, TaskStatus, TaskPriority } from '@stms/data';
+import { Task, Category, Organization, TaskStatus, TaskPriority } from '@stms/data';
 import { Permission } from '@stms/data';
 import { TaskCardComponent } from '../../components/task-card/task-card.component';
 import { TaskFormModalComponent, TaskFormResult } from '../../components/task-modal/task-modal.component';
@@ -259,15 +259,15 @@ import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-
   `],
 })
 export class DashboardComponent implements OnInit {
-  allTasks = signal<ITask[]>([]);
-  filteredTasks = signal<ITask[]>([]);
-  categories = signal<ICategory[]>([]);
-  organizations = signal<IOrganization[]>([]);
+  allTasks = signal<Task[]>([]);
+  filteredTasks = signal<Task[]>([]);
+  categories = signal<Category[]>([]);
+  organizations = signal<Organization[]>([]);
   loading = signal(true);
   saving = signal(false);
   showModal = signal(false);
-  editingTask = signal<ITask | null>(null);
-  deleteTarget = signal<ITask | null>(null);
+  editingTask = signal<Task | null>(null);
+  deleteTarget = signal<Task | null>(null);
 
   filterCategory = '';
   filterPriority = '';
@@ -330,7 +330,7 @@ export class DashboardComponent implements OnInit {
     this.filteredTasks.set(tasks);
   }
 
-  getColumnTasks(status: TaskStatus): ITask[] {
+  getColumnTasks(status: TaskStatus): Task[] {
     return this.filteredTasks().filter((t) => t.status === status).sort((a, b) => a.position - b.position);
   }
 
@@ -342,15 +342,15 @@ export class DashboardComponent implements OnInit {
     return this.authService.hasPermission(Permission.TASK_CREATE);
   }
 
-  canEditThisTask(task: ITask): boolean {
+  canEditThisTask(task: Task): boolean {
     return this.authService.canEditTask(task.createdById);
   }
 
-  canDeleteThisTask(task: ITask): boolean {
+  canDeleteThisTask(task: Task): boolean {
     return this.authService.canDeleteTask(task.createdById);
   }
 
-  onDrop(event: CdkDragDrop<ITask[]>, newStatus: TaskStatus) {
+  onDrop(event: CdkDragDrop<Task[]>, newStatus: TaskStatus) {
     if (!this.canDragDrop()) return;
 
     if (event.previousContainer === event.container) {
@@ -381,7 +381,7 @@ export class DashboardComponent implements OnInit {
     this.showModal.set(true);
   }
 
-  openEditModal(task: ITask) {
+  openEditModal(task: Task) {
     this.editingTask.set(task);
     this.showModal.set(true);
   }
@@ -424,7 +424,7 @@ export class DashboardComponent implements OnInit {
     }
   }
 
-  confirmDelete(task: ITask) {
+  confirmDelete(task: Task) {
     this.deleteTarget.set(task);
   }
 

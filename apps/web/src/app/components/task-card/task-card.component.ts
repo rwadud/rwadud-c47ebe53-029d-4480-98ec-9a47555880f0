@@ -1,6 +1,6 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ITask } from '@stms/data';
+import { Task } from '@stms/data';
 
 @Component({
   selector: 'app-task-card',
@@ -111,12 +111,12 @@ import { ITask } from '@stms/data';
   `],
 })
 export class TaskCardComponent {
-  @Input({ required: true }) task!: ITask;
+  @Input({ required: true }) task!: Task;
   @Input() canEdit = false;
   @Input() canDelete = false;
 
-  @Output() edit = new EventEmitter<ITask>();
-  @Output() delete = new EventEmitter<ITask>();
+  @Output() edit = new EventEmitter<Task>();
+  @Output() delete = new EventEmitter<Task>();
 
   formatDate(dateStr: string): string {
     const d = new Date(dateStr);

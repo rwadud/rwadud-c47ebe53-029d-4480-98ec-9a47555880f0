@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { ITask, CreateTaskDto, UpdateTaskDto, ReorderTaskDto, TaskStatus } from '@stms/data';
+import { Task, CreateTaskDto, UpdateTaskDto, ReorderTaskDto, TaskStatus } from '@stms/data';
 
 @Injectable({ providedIn: 'root' })
 export class TaskService {
@@ -21,15 +21,15 @@ export class TaskService {
         if (value) params = params.set(key, value);
       });
     }
-    return this.http.get<ITask[]>(this.apiUrl, { params });
+    return this.http.get<Task[]>(this.apiUrl, { params });
   }
 
   createTask(dto: CreateTaskDto) {
-    return this.http.post<ITask>(this.apiUrl, dto);
+    return this.http.post<Task>(this.apiUrl, dto);
   }
 
   updateTask(id: number, dto: UpdateTaskDto) {
-    return this.http.put<ITask>(`${this.apiUrl}/${id}`, dto);
+    return this.http.put<Task>(`${this.apiUrl}/${id}`, dto);
   }
 
   deleteTask(id: number) {
