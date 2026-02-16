@@ -16,7 +16,8 @@ import { AuditLog } from '@stms/data';
           <div class="spinner" style="width: 32px; height: 32px"></div>
         </div>
       } @else {
-        <div class="audit-table-wrap">
+        <!-- Desktop Table -->
+        <div class="audit-table-wrap desktop-only">
           <table class="audit-table">
             <thead>
               <tr>
@@ -49,6 +50,30 @@ import { AuditLog } from '@stms/data';
             </tbody>
           </table>
         </div>
+
+        <!-- Mobile Card List -->
+        <div class="audit-cards mobile-only">
+          @for (log of logs(); track log.id) {
+            <div class="audit-card card">
+              <div class="audit-card-header">
+                <span class="badge" [class]="getActionClass(log.action)">{{ log.action }}</span>
+                <span class="text-xs text-muted">{{ formatTime(log.timestamp) }}</span>
+              </div>
+              <div class="audit-card-body">
+                <span class="audit-card-resource">{{ log.resource }} #{{ log.resourceId }}</span>
+                <span class="text-sm text-muted">by {{ log.user?.name || 'Unknown' }}</span>
+              </div>
+              @if (formatDetails(log.details) !== '\u2014') {
+                <div class="audit-card-details text-sm text-secondary">
+                  {{ formatDetails(log.details) }}
+                </div>
+              }
+            </div>
+          }
+          @if (logs().length === 0) {
+            <div class="text-center text-muted" style="padding: 40px">No audit log entries yet.</div>
+          }
+        </div>
       }
     </div>
   `,
@@ -63,6 +88,9 @@ import { AuditLog } from '@stms/data';
       font-weight: 800;
       letter-spacing: -0.5px;
     }
+    /* --- Desktop Table --- */
+    .desktop-only { display: block; }
+    .mobile-only { display: none; }
     .audit-table-wrap {
       overflow-x: auto;
       border: 1px solid var(--color-border);
@@ -96,6 +124,42 @@ import { AuditLog } from '@stms/data';
     }
     .audit-table tbody tr:hover {
       background: var(--color-bg-tertiary);
+    }
+    /* --- Mobile Cards --- */
+    .audit-cards {
+      flex-direction: column;
+      gap: 10px;
+    }
+    .audit-card {
+      padding: 14px 16px;
+      border-radius: 12px;
+    }
+    .audit-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    .audit-card-body {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .audit-card-resource {
+      font-weight: 600;
+      font-size: 14px;
+      color: var(--color-text-primary);
+    }
+    .audit-card-details {
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px solid var(--color-border);
+      line-height: 1.5;
+      word-break: break-word;
+    }
+    @media (max-width: 768px) {
+      .desktop-only { display: none !important; }
+      .mobile-only { display: flex !important; }
     }
   `],
 })

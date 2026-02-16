@@ -13,6 +13,28 @@ import { Permission } from '@stms/data';
   template: `
     @if (authService.isLoggedIn()) {
       <div class="app-layout">
+        <!-- Mobile Top Bar -->
+        <header class="mobile-header">
+          <a routerLink="/dashboard" class="sidebar-logo">
+            <svg width="24" height="24" viewBox="0 0 40 40" fill="none">
+              <rect width="40" height="40" rx="10" fill="var(--color-accent)"/>
+              <path d="M12 14h16M12 20h16M12 26h10" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+              <circle cx="28" cy="26" r="3" fill="white"/>
+            </svg>
+            <span class="sidebar-brand">STMS</span>
+          </a>
+          <div class="mobile-header-actions">
+            <button class="mobile-icon-btn" (click)="themeService.toggle()" title="Toggle theme">
+              <span class="material-symbols-outlined">{{ themeService.isDark() ? 'light_mode' : 'dark_mode' }}</span>
+            </button>
+            <button class="mobile-icon-btn mobile-icon-btn-danger" (click)="authService.logout()" title="Sign out">
+              <span class="material-symbols-outlined">logout</span>
+            </button>
+            <div class="user-avatar mobile-avatar">{{ getInitials() }}</div>
+          </div>
+        </header>
+
+        <!-- Desktop Sidebar -->
         <nav class="sidebar">
           <div class="sidebar-header">
             <a routerLink="/dashboard" class="sidebar-logo">
@@ -27,26 +49,31 @@ import { Permission } from '@stms/data';
 
           <div class="sidebar-nav">
             <a routerLink="/dashboard" routerLinkActive="nav-active" class="nav-item">
-              <span class="nav-icon material-symbols-outlined">task_alt</span> Tasks
+              <span class="nav-icon material-symbols-outlined">task_alt</span>
+              <span class="nav-label">Tasks</span>
             </a>
             @if (authService.hasPermission(auditPerm)) {
               <a routerLink="/audit-log" routerLinkActive="nav-active" class="nav-item">
-                <span class="nav-icon material-symbols-outlined">monitoring</span> Audit Log
+                <span class="nav-icon material-symbols-outlined">monitoring</span>
+                <span class="nav-label">Audit Log</span>
               </a>
             }
             @if (authService.hasPermission(categoryViewPerm)) {
               <a routerLink="/categories" routerLinkActive="nav-active" class="nav-item">
-                <span class="nav-icon material-symbols-outlined">label</span> Categories
+                <span class="nav-icon material-symbols-outlined">label</span>
+                <span class="nav-label">Categories</span>
               </a>
             }
             @if (authService.hasPermission(userManagePerm)) {
               <a routerLink="/users" routerLinkActive="nav-active" class="nav-item">
-                <span class="nav-icon material-symbols-outlined">group</span> Users
+                <span class="nav-icon material-symbols-outlined">group</span>
+                <span class="nav-label">Users</span>
               </a>
             }
             @if (authService.hasPermission(orgManagePerm)) {
               <a routerLink="/organizations" routerLinkActive="nav-active" class="nav-item">
-                <span class="nav-icon material-symbols-outlined">apartment</span> Organizations
+                <span class="nav-icon material-symbols-outlined">apartment</span>
+                <span class="nav-label">Orgs</span>
               </a>
             }
           </div>
@@ -99,7 +126,13 @@ import { Permission } from '@stms/data';
     .app-layout {
       display: flex;
       min-height: 100vh;
+      overflow-x: hidden;
     }
+    /* --- Mobile Top Header --- */
+    .mobile-header {
+      display: none;
+    }
+    /* --- Desktop Sidebar --- */
     .sidebar {
       width: 240px;
       background: var(--sidebar-bg);
@@ -212,7 +245,65 @@ import { Permission } from '@stms/data';
       margin-left: 240px;
       padding: 24px 28px;
     }
+    /* --- Mobile Layout --- */
     @media (max-width: 768px) {
+      /* Mobile top bar */
+      .mobile-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 56px;
+        padding: 0 16px;
+        background: var(--sidebar-bg);
+        border-bottom: 1px solid var(--color-border);
+        z-index: 200;
+      }
+      .mobile-header .sidebar-logo svg {
+        width: 24px;
+        height: 24px;
+      }
+      .mobile-header .sidebar-brand {
+        font-size: 16px;
+      }
+      .mobile-header-actions {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+      .mobile-icon-btn {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        border: none;
+        background: transparent;
+        color: var(--color-text-secondary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: background 0.2s, color 0.2s;
+      }
+      .mobile-icon-btn:hover {
+        background: var(--color-bg-tertiary);
+        color: var(--color-text-primary);
+      }
+      .mobile-icon-btn .material-symbols-outlined {
+        font-size: 20px;
+      }
+      .mobile-icon-btn-danger:hover {
+        color: var(--color-danger);
+      }
+      .mobile-avatar {
+        width: 30px;
+        height: 30px;
+        font-size: 11px;
+        margin-left: 4px;
+      }
+      /* Hide desktop sidebar */
       .sidebar {
         width: 100%;
         position: fixed;
@@ -226,18 +317,56 @@ import { Permission } from '@stms/data';
         border-top: 1px solid var(--color-border);
         z-index: 200;
       }
-      .sidebar-header, .sidebar-footer { display: none; }
+      .sidebar-header,
+      .sidebar-footer { display: none; }
+      /* Bottom tab bar */
       .sidebar-nav {
         flex-direction: row;
-        justify-content: center;
-        padding: 8px 12px;
+        justify-content: space-around;
+        padding: 6px 0;
+        gap: 0;
         width: 100%;
       }
-      .nav-item { padding: 8px 16px; font-size: 13px; }
+      .nav-item {
+        flex-direction: column;
+        align-items: center;
+        gap: 2px;
+        padding: 6px 8px;
+        border-radius: 8px;
+        font-size: 10px;
+        font-weight: 600;
+        min-width: 0;
+        flex: 1;
+      }
+      .nav-item:hover {
+        transform: none;
+      }
+      .nav-item .nav-icon {
+        font-size: 22px;
+      }
+      .nav-active {
+        box-shadow: none;
+      }
+      .nav-active::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 20px;
+        height: 3px;
+        background: var(--color-accent);
+        border-radius: 0 0 3px 3px;
+      }
+      /* Main content with top + bottom offset */
       .main-content {
         margin-left: 0;
         padding: 16px;
-        padding-bottom: 70px;
+        padding-top: 72px;
+        padding-bottom: 80px;
+        overflow-x: hidden;
+        width: 100%;
+        box-sizing: border-box;
       }
     }
   `],

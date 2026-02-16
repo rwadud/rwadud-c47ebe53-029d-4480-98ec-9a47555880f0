@@ -24,7 +24,8 @@ import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-
           <div class="spinner" style="width: 28px; height: 28px"></div>
         </div>
       } @else {
-        <div class="users-table-wrap">
+        <!-- Desktop Table -->
+        <div class="users-table-wrap desktop-only">
           <table class="users-table">
             <thead>
               <tr>
@@ -48,7 +49,7 @@ import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-
                   <td>
                     <span class="badge" [class]="'badge-' + user.role">{{ user.role }}</span>
                   </td>
-                  <td class="text-muted">{{ user.organization?.name || '—' }}</td>
+                  <td class="text-muted">{{ user.organization?.name || '\u2014' }}</td>
                   <td>
                     @if (user.role !== 'owner') {
                       <div class="flex gap-1">
@@ -62,6 +63,39 @@ import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-
               }
             </tbody>
           </table>
+          @if (users().length === 0) {
+            <div class="text-center text-muted" style="padding: 40px">No users found.</div>
+          }
+        </div>
+
+        <!-- Mobile Card List -->
+        <div class="user-cards mobile-only">
+          @for (user of users(); track user.id) {
+            <div class="user-card card">
+              <div class="user-card-top">
+                <div class="user-card-info">
+                  <span class="user-card-name">
+                    {{ user.name }}
+                    @if (user.id === authService.currentUser()?.id) {
+                      <span class="badge badge-info" style="font-size: 10px; margin-left: 4px">You</span>
+                    }
+                  </span>
+                  <span class="text-xs text-muted">{{ user.email }}</span>
+                </div>
+                @if (user.role !== 'owner') {
+                  <div class="flex gap-1">
+                    <button class="btn btn-ghost btn-sm" (click)="openEditModal(user)" title="Edit"><span class="material-symbols-outlined" style="font-size: 16px">edit</span></button>
+                    <button class="btn btn-ghost btn-sm" (click)="confirmDelete(user)" title="Delete"
+                            [disabled]="user.id === authService.currentUser()?.id"><span class="material-symbols-outlined" style="font-size: 16px">delete</span></button>
+                  </div>
+                }
+              </div>
+              <div class="user-card-bottom">
+                <span class="badge" [class]="'badge-' + user.role">{{ user.role }}</span>
+                <span class="text-xs text-muted">{{ user.organization?.name || '\u2014' }}</span>
+              </div>
+            </div>
+          }
           @if (users().length === 0) {
             <div class="text-center text-muted" style="padding: 40px">No users found.</div>
           }
@@ -189,6 +223,47 @@ import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-
     .badge-info {
       background: var(--color-accent-light);
       color: var(--color-accent);
+    }
+    /* --- Layout toggles --- */
+    .desktop-only { display: block; }
+    .mobile-only { display: none; }
+    /* --- Mobile Cards --- */
+    .user-cards {
+      flex-direction: column;
+      gap: 10px;
+    }
+    .user-card {
+      padding: 14px 16px;
+      border-radius: 12px;
+    }
+    .user-card-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .user-card-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 0;
+    }
+    .user-card-name {
+      font-weight: 600;
+      font-size: 15px;
+      color: var(--color-text-primary);
+    }
+    .user-card-bottom {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid var(--color-border);
+    }
+    @media (max-width: 768px) {
+      .desktop-only { display: none !important; }
+      .mobile-only { display: flex !important; }
     }
   `],
 })
