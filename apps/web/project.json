@@ -59,6 +59,11 @@
       },
       "defaultConfiguration": "development"
     },
+    "test": {
+      "options": {
+        "passWithNoTests": true
+      }
+    },
     "serve-static": {
       "continuous": true,
       "executor": "@nx/web:file-server",
