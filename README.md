@@ -163,36 +163,36 @@ HQ (Parent Org)
 │ parentId (FK)  │───┘   │ password (hash)  │
 │                │◄──────│ organizationId   │
 │                │       │ role (enum)      │
-└────────────────┘       └──────────────────┘
-        │                        │
-        │                        │
-        ▼                        ▼
-┌────────────────┐       ┌──────────────────┐
-│    Category    │       │      Task        │
-├────────────────┤       ├──────────────────┤
-│ id (PK)        │       │ id (PK)          │
-│ name           │◄──────│ categoryId (FK)  │
-│ organizationId │       │ title            │
-│ createdById    │       │ description      │
-└────────────────┘       │ status (enum)    │
-                         │ priority (enum)  │
-                         │ position (int)   │
-                         │ createdById (FK) │
-                         │ organizationId   │
-                         └──────────────────┘
-
-┌──────────────────┐
-│    AuditLog      │
-├──────────────────┤
-│ id (PK)          │
-│ action (enum)    │
-│ resource (enum)  │
-│ resourceId       │
-│ userId (FK)      │
-│ organizationId   │
-│ details (JSON)   │
-│ timestamp        │
-└──────────────────┘
+└───┬────────────┘       └──────┬───────────┘
+    │    │                      │       │
+    │    │                      │       │
+    │    ▼                      │       ▼
+    │ ┌────────────────┐        │ ┌──────────────────┐
+    │ │    Category    │        │ │      Task        │
+    │ ├────────────────┤        │ ├──────────────────┤
+    │ │ id (PK)        │        │ │ id (PK)          │
+    │ │ name           │◄───────┼─│ categoryId (FK)  │
+    │ │ organizationId │        │ │ title            │
+    │ │ createdById    │        │ │ description      │
+    │ └────────────────┘        │ │ status (enum)    │
+    │                           │ │ priority (enum)  │
+    │                           │ │ position (int)   │
+    │                           │ │ createdById (FK) │
+    │                           │ │ organizationId   │
+    │                           │ └──────────────────┘
+    │                           │
+    │    ┌──────────────────┐   │
+    │    │    AuditLog      │   │
+    │    ├──────────────────┤   │
+    │    │ id (PK)          │   │
+    │    │ action (enum)    │   │
+    │    │ resource (enum)  │   │
+    │    │ resourceId       │   │
+    └───►│ organizationId   │◄──┘
+         │ userId (FK)      │
+         │ details (JSON)   │
+         │ timestamp        │
+         └──────────────────┘
 ```
 
 ---
