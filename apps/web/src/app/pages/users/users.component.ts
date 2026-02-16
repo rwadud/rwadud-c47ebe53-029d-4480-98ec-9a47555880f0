@@ -14,8 +14,8 @@ import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-
   imports: [CommonModule, FormsModule, ConfirmDialogComponent],
   template: `
     <div class="users-page">
-      <div class="flex items-center justify-between mb-4">
-        <h2 class="page-title" style="margin: 0;">User Management</h2>
+      <div class="page-header">
+        <h2 class="page-title">User Management</h2>
         <button class="btn btn-primary" (click)="openCreateModal()">+ New User</button>
       </div>
 

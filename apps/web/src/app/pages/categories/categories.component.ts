@@ -13,8 +13,8 @@ import { Permission } from '@stms/data';
   imports: [CommonModule, FormsModule],
   template: `
     <div class="categories-page">
-      <div class="flex items-center justify-between mb-4">
-        <h2 class="page-title" style="margin: 0;">Categories</h2>
+      <div class="page-header">
+        <h2 class="page-title">Categories</h2>
         @if (canManage()) {
           <button class="btn btn-primary" (click)="showAdd = true">+ New Category</button>
         }

@@ -19,13 +19,21 @@ import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-
   imports: [CommonModule, FormsModule, DragDropModule, TaskCardComponent, TaskFormModalComponent, ConfirmDialogComponent],
   template: `
     <div class="dashboard">
-      <!-- Filters Bar -->
-      <div class="filters-bar">
+      <!-- Page Header -->
+      <div class="page-header">
         <div class="filters-left">
           <h2 class="page-title">Task Board</h2>
           <span class="task-count text-muted text-sm">{{ allTasks().length }} tasks</span>
         </div>
-        <div class="filters-right">
+        @if (canCreateTask()) {
+          <button class="btn btn-primary" (click)="openCreateModal()">
+            + New Task
+          </button>
+        }
+      </div>
+
+      <!-- Filters Bar -->
+      <div class="filters-bar">
           @if (organizations().length > 1) {
             <select class="form-input form-select filter-select"
                     [(ngModel)]="filterOrg"
@@ -53,12 +61,6 @@ import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-
             <option value="medium">Medium</option>
             <option value="low">Low</option>
           </select>
-          @if (canCreateTask()) {
-            <button class="btn btn-primary" (click)="openCreateModal()">
-              + New Task
-            </button>
-          }
-        </div>
       </div>
 
       <!-- Loading State -->
@@ -146,21 +148,14 @@ import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-
     .filters-bar {
       display: flex;
       align-items: center;
-      justify-content: space-between;
       flex-wrap: wrap;
-      gap: 12px;
+      gap: 10px;
       margin-bottom: 28px;
     }
     .filters-left {
       display: flex;
       align-items: baseline;
       gap: 12px;
-    }
-    .filters-right {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      flex-wrap: wrap;
     }
     .page-title {
       margin: 0;
