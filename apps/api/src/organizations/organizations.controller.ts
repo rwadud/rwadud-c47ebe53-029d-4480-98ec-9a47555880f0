@@ -1,0 +1,43 @@
+import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards, Request } from '@nestjs/common';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { RbacGuard } from '../guards/rbac.guard';
+import { RequirePermissions } from '../guards/permissions.decorator';
+import { Permission } from '@stms/auth';
+import { OrgScopeService } from '../guards/org-scope.service';
+import { OrganizationsService } from './organizations.service';
+import { CreateOrgDto, UpdateOrgDto } from '@stms/data';
+
+@Controller('organizations')
+@UseGuards(JwtAuthGuard)
+export class OrganizationsController {
+  constructor(
+    private readonly orgScopeService: OrgScopeService,
+    private readonly orgsService: OrganizationsService,
+  ) { }
+
+  @Get()
+  async findAll(@Request() req: any) {
+    return this.orgScopeService.getVisibleOrgs(req.user);
+  }
+
+  @Post()
+  @UseGuards(RbacGuard)
+  @RequirePermissions(Permission.ORG_MANAGE)
+  create(@Body() dto: CreateOrgDto, @Request() req: any) {
+    return this.orgsService.create(dto, req.user);
+  }
+
+  @Put(':id')
+  @UseGuards(RbacGuard)
+  @RequirePermissions(Permission.ORG_MANAGE)
+  update(@Param('id') id: string, @Body() dto: UpdateOrgDto, @Request() req: any) {
+    return this.orgsService.update(Number(id), dto, req.user);
+  }
+
+  @Delete(':id')
+  @UseGuards(RbacGuard)
+  @RequirePermissions(Permission.ORG_MANAGE)
+  delete(@Param('id') id: string, @Request() req: any) {
+    return this.orgsService.delete(Number(id), req.user);
+  }
+}
