@@ -98,7 +98,10 @@ export class UsersService {
 
     if (dto.name) user.name = dto.name;
     if (dto.role) user.role = dto.role as Role;
-    if (dto.organizationId) user.organizationId = dto.organizationId;
+    if (dto.organizationId) {
+      user.organizationId = dto.organizationId;
+      user.organization = null as any; // Clear loaded relation so TypeORM uses the new ID
+    }
 
     const saved = await this.userRepo.save(user);
 
