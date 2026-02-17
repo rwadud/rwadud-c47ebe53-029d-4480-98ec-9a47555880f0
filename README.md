@@ -1,6 +1,6 @@
 # STMS - Secure Task Management System
 
-A production-grade task management application with **role-based access control**, **organizational hierarchy**, and a **Kanban board** interface. Built as an NX monorepo with NestJS and Angular.
+A task management application with **role-based access control**, **organizational hierarchy**, and a **Kanban board** interface. Built as an NX monorepo with NestJS and Angular.
 
 ---
 
